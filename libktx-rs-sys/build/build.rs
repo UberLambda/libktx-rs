@@ -1,3 +1,4 @@
+use bindgen;
 use cc;
 use std::path::PathBuf;
 
@@ -14,6 +15,8 @@ const INCLUDE_DIRS: &[&str] = &[
     "build/KTX-Software/other_include",
     "build/KTX-Software/utils",
 ];
+
+const MAIN_HEADER: &str = "build/KTX-Software/include/ktx.h";
 
 const C_SOURCE_FILES: &[&str] = &[
     "lib/basisu/zstd/zstd.c",
@@ -94,16 +97,37 @@ fn ktx_sources<'a>(rel_paths: &'a [&'a str]) -> impl Iterator<Item = PathBuf> + 
 }
 
 fn main() {
+    println!("-- Build the native libKTX...");
     configure_build(cc::Build::new())
         .cpp(false)
         .files(ktx_sources(C_SOURCE_FILES))
         .compile("ktx_c");
-
     configure_build(cc::Build::new())
         .cpp(true)
         .files(ktx_sources(CXX_SOURCE_FILES))
         .compile("ktx");
 
+    println!("-- Link the native libKTX to the crate");
     println!("cargo:rustc-link-lib=static=ktx_c");
     println!("cargo:rustc-link-lib=static=ktx");
+
+    println!("-- Generate Rust bindings...");
+    let bindings = bindgen::Builder::default()
+        .header(MAIN_HEADER)
+        //
+        .opaque_type("FILE")
+        .allowlist_function(r"ktx.*")
+        .allowlist_type(r"[Kk][Tt][Xx].*")
+        .allowlist_var(r"[Kk][Tt][Xx].*")
+        //
+        .generate()
+        .expect("generating the bindings");
+
+    let mut out_path = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+    out_path.push("bindings.rs");
+    bindings
+        .write_to_file(out_path)
+        .expect("writing the generated bindings to file");
+
+    println!("-- All done");
 }
