@@ -1,3 +1,4 @@
+#[cfg(feature = "run-bindgen")]
 use bindgen;
 use cc;
 use std::path::PathBuf;
@@ -16,6 +17,7 @@ const INCLUDE_DIRS: &[&str] = &[
     "build/KTX-Software/utils",
 ];
 
+#[cfg(feature = "run-bindgen")]
 const MAIN_HEADER: &str = "build/KTX-Software/include/ktx.h";
 
 const C_SOURCE_FILES: &[&str] = &[
@@ -119,24 +121,29 @@ fn main() {
     #[cfg(feature = "link-libstdc++")]
     println!("cargo:rustc-link-lib=dylib=stdc++");
 
-    println!("-- Generate Rust bindings");
+    #[cfg(feature = "run-bindgen")]
+    {
+        println!("-- Generate Rust bindings");
 
-    let bindings = bindgen::Builder::default()
-        .header(MAIN_HEADER)
-        //
-        .opaque_type("FILE")
-        .allowlist_function(r"ktx.*")
-        .allowlist_type(r"[Kk][Tt][Xx].*")
-        .allowlist_var(r"[Kk][Tt][Xx].*")
-        //
-        .generate()
-        .expect("generating the bindings");
+        let bindings = bindgen::Builder::default()
+            .header(MAIN_HEADER)
+            //
+            .opaque_type("FILE")
+            .allowlist_function(r"ktx.*")
+            .allowlist_type(r"[Kk][Tt][Xx].*")
+            .allowlist_var(r"[Kk][Tt][Xx].*")
+            //
+            .clang_arg("-fparse-all-comments")
+            .generate()
+            .expect("generating the bindings");
 
-    let mut out_path = PathBuf::from(std::env::var("OUT_DIR").unwrap());
-    out_path.push("bindings.rs");
-    bindings
-        .write_to_file(out_path)
-        .expect("writing the generated bindings to file");
+        let mut out_path = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+        out_path.push("bindings.rs");
+        bindings
+            .write_to_file(out_path)
+            .expect("writing the generated bindings to file");
+    }
 
     println!("-- All done");
+    println!("cargo:rerun-if-changed=build/build.rs");
 }

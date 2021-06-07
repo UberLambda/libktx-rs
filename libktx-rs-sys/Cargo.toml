@@ -15,8 +15,11 @@ build = "build/build.rs"
 # 3. Copy https://github.com/bevyengine/bevy/blob/main/.cargo/config_fast_builds to use clang instead of gcc as a linker
 "link-libstdc++" = []
 
+# Run bindgen as part of the build process?
+"run-bindgen" = ["bindgen"]
+
 [dependencies]
 
 [build-dependencies]
 cc = { version = "^1.0", features = ["parallel"] }
-bindgen = "^0.58"
+bindgen = { version = "^0.58", optional = true }
