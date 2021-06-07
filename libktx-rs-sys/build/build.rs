@@ -78,6 +78,9 @@ fn configure_build(mut build: cc::Build) -> cc::Build {
                 .define("KTX_API", "__declspec(dllexport)")
                 .define("BASISU_NO_ITERATOR_DEBUG_LEVEL", "1");
         }
+        ("linux", _) => {
+            build.flag("-pthread").flag("-ldl");
+        }
         (_, "wasm32" | "wasm64") => {
             build
                 .define("BASISD_SUPPORT_ATC", "0")
@@ -97,21 +100,27 @@ fn ktx_sources<'a>(rel_paths: &'a [&'a str]) -> impl Iterator<Item = PathBuf> + 
 }
 
 fn main() {
-    println!("-- Build the native libKTX...");
+    println!("-- Build the native libKTX");
+
     configure_build(cc::Build::new())
         .cpp(false)
         .files(ktx_sources(C_SOURCE_FILES))
         .compile("ktx_c");
-    configure_build(cc::Build::new())
-        .cpp(true)
-        .files(ktx_sources(CXX_SOURCE_FILES))
-        .compile("ktx");
+
+    let mut cxx_build = configure_build(cc::Build::new());
+    cxx_build.cpp(true).files(ktx_sources(CXX_SOURCE_FILES));
+    cxx_build.compile("ktx");
 
     println!("-- Link the native libKTX to the crate");
+
     println!("cargo:rustc-link-lib=static=ktx_c");
     println!("cargo:rustc-link-lib=static=ktx");
 
-    println!("-- Generate Rust bindings...");
+    #[cfg(feature = "link-libstdc++")]
+    println!("cargo:rustc-link-lib=dylib=stdc++");
+
+    println!("-- Generate Rust bindings");
+
     let bindings = bindgen::Builder::default()
         .header(MAIN_HEADER)
         //
