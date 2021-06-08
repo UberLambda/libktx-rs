@@ -68,7 +68,7 @@ impl TryFrom<u32> for KtxError {
 
 impl Display for KtxError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let c_str = unsafe { CStr::from_ptr(sys::ktxErrorString(self)) };
+        let c_str = unsafe { CStr::from_ptr(sys::ktxErrorString(*self as u32)) };
         match c_str.to_str() {
             Ok(msg) => write!(f, "{}", msg),
             _ => Err(std::fmt::Error),
