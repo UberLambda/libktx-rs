@@ -7,4 +7,3 @@ edition = "2018"
 
 [dependencies]
 libktx-rs-sys = { path = "../libktx-rs-sys", version = "0.1.0" }
-derive_builder = "^0.10"

@@ -1,5 +1,4 @@
 use crate::sys;
-use derive_builder::Builder;
 use std::{marker::PhantomData, sync::Arc};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -10,30 +9,37 @@ pub enum Format {
     Vk(u32),
 }
 
-#[derive(Builder, Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct TextureCreateInfo {
-    #[builder(default = "Format::Vk(37)")] // VK_FORMAT_R8G8B8A8_UNORM
     pub format: Format,
-    #[builder(setter(strip_option))]
     pub dfd: Vec<u32>,
-    #[builder(default = "1")]
     pub base_width: u32,
-    #[builder(default = "1")]
     pub base_height: u32,
-    #[builder(default = "1")]
     pub base_depth: u32,
-    #[builder(default = "2")]
     pub num_dimensions: u32,
-    #[builder(default = "1")]
     pub num_levels: u32,
-    #[builder(default = "1")]
     pub num_layers: u32,
-    #[builder(default = "1")]
     pub num_faces: u32,
-    #[builder(default = "false")]
     pub is_array: bool,
-    #[builder(default = "false")]
     pub generate_mipmaps: bool,
+}
+
+impl Default for TextureCreateInfo {
+    fn default() -> Self {
+        TextureCreateInfo {
+            format: Format::Vk(37), // VK_R8G8B8A8_UNORM
+            dfd: vec![],
+            base_width: 1,
+            base_height: 1,
+            base_depth: 1,
+            num_dimensions: 1,
+            num_levels: 1,
+            num_layers: 1,
+            num_faces: 1,
+            is_array: false,
+            generate_mipmaps: false,
+        }
+    }
 }
 
 pub struct Texture<'a> {
