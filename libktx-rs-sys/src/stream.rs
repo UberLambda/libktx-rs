@@ -1,4 +1,5 @@
 use crate::*;
+use log;
 use std::{
     ffi::c_void,
     io::{Read, Seek, SeekFrom, Write},
@@ -121,7 +122,10 @@ unsafe extern "C" fn ktxRustStream_read(
     let buf = std::slice::from_raw_parts_mut(dst as *mut u8, count as usize);
     match inner.read_exact(buf) {
         Ok(_) => ktx_error_code_e_KTX_SUCCESS,
-        Err(_) => ktx_error_code_e_KTX_FILE_READ_ERROR,
+        Err(err) => {
+            log::error!("ktxRustStream_read: {}", err);
+            ktx_error_code_e_KTX_FILE_READ_ERROR
+        }
     }
 }
 
@@ -133,7 +137,10 @@ unsafe extern "C" fn ktxRustStream_skip(
     let inner = inner_rwseekable(str);
     match inner.seek(SeekFrom::Current(count as i64)) {
         Ok(_) => ktx_error_code_e_KTX_SUCCESS,
-        Err(_) => ktx_error_code_e_KTX_FILE_SEEK_ERROR,
+        Err(err) => {
+            log::error!("ktxRustStream_skip: {}", err);
+            ktx_error_code_e_KTX_FILE_SEEK_ERROR
+        }
     }
 }
 
@@ -149,7 +156,10 @@ unsafe extern "C" fn ktxRustStream_write(
     let buf = std::slice::from_raw_parts(src as *const u8, len);
     match inner.write_all(buf) {
         Ok(_) => ktx_error_code_e_KTX_SUCCESS,
-        Err(_) => ktx_error_code_e_KTX_FILE_WRITE_ERROR,
+        Err(err) => {
+            log::error!("ktxRustStream_write: {}", err);
+            ktx_error_code_e_KTX_FILE_WRITE_ERROR
+        }
     }
 }
 
@@ -164,7 +174,10 @@ unsafe extern "C" fn ktxRustStream_getpos(
             *pos = cur as ktx_off_t;
             ktx_error_code_e_KTX_SUCCESS
         }
-        Err(_) => ktx_error_code_e_KTX_FILE_SEEK_ERROR,
+        Err(err) => {
+            log::error!("ktxRustStream_getpos: {}", err);
+            ktx_error_code_e_KTX_FILE_SEEK_ERROR
+        }
     }
 }
 
@@ -173,7 +186,10 @@ unsafe extern "C" fn ktxRustStream_setpos(str: *mut ktxStream, off: ktx_off_t) -
     let inner = inner_rwseekable(str);
     match inner.seek(SeekFrom::Start(off as u64)) {
         Ok(_) => ktx_error_code_e_KTX_SUCCESS,
-        Err(_) => ktx_error_code_e_KTX_FILE_SEEK_ERROR,
+        Err(err) => {
+            log::error!("ktxRustStream_setpos: {}", err);
+            ktx_error_code_e_KTX_FILE_SEEK_ERROR
+        }
     }
 }
 
@@ -188,7 +204,10 @@ unsafe extern "C" fn ktxRustStream_getsize(
             *size = len as ktx_size_t;
             ktx_error_code_e_KTX_SUCCESS
         }
-        Err(_) => ktx_error_code_e_KTX_FILE_SEEK_ERROR,
+        Err(err) => {
+            log::error!("ktxRustStream_getsize: {}", err);
+            ktx_error_code_e_KTX_FILE_SEEK_ERROR
+        }
     }
 }
 
