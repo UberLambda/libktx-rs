@@ -1,4 +1,4 @@
-use crate::sys;
+use crate::{enums::CreateStorage, sys};
 use std::{marker::PhantomData, sync::Arc};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -52,7 +52,7 @@ pub struct Texture<'a> {
 impl<'a> Texture<'a> {
     pub fn create(
         create_info: TextureCreateInfo,
-        storage_alloc: sys::ktxTextureCreateStorageEnum,
+        storage_alloc: CreateStorage,
     ) -> Result<Self, sys::ktx_error_code_e> {
         let mut sys_create_info = sys::ktxTextureCreateInfo {
             glInternalformat: 0,        // Set later for KTX1
@@ -69,16 +69,17 @@ impl<'a> Texture<'a> {
             generateMipmaps: create_info.generate_mipmaps,
         };
 
-        #[allow(unused_mut)] // This pointer is modified by C code!
-        let mut handle: *mut sys::ktxTexture = std::ptr::null_mut();
         let mut dfd: Option<Arc<Vec<u32>>> = None;
+        let mut handle: *mut sys::ktxTexture = std::ptr::null_mut();
+        let handle_ptr: *mut *mut sys::ktxTexture = &mut handle;
+
         let err = match create_info.format {
             Format::Gl(internal_format) => unsafe {
                 sys_create_info.glInternalformat = internal_format;
                 sys::ktxTexture1_Create(
                     &mut sys_create_info,
-                    storage_alloc,
-                    &mut (handle as *mut sys::ktxTexture1),
+                    storage_alloc as u32,
+                    handle_ptr as *mut *mut sys::ktxTexture1,
                 )
             },
             Format::Vk(format) => unsafe {
@@ -95,13 +96,13 @@ impl<'a> Texture<'a> {
                 });
                 sys::ktxTexture2_Create(
                     &mut sys_create_info,
-                    storage_alloc,
-                    &mut (handle as *mut sys::ktxTexture2),
+                    storage_alloc as u32,
+                    handle_ptr as *mut *mut sys::ktxTexture2,
                 )
             },
         };
 
-        if err == sys::ktx_error_code_e_KTX_SUCCESS {
+        if err == sys::ktx_error_code_e_KTX_SUCCESS && !handle.is_null() {
             Ok(Texture {
                 handle,
                 handle_phantom: PhantomData,
