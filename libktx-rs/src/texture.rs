@@ -160,4 +160,12 @@ impl<'a> StreamTexture<'a> {
             Err(format!("{}", err))
         }
     }
+
+    pub fn texture(&self) -> &Texture<'a> {
+        &self.texture
+    }
+
+    pub fn texture_mut(&mut self) -> &mut Texture<'a> {
+        &mut self.texture
+    }
 }
