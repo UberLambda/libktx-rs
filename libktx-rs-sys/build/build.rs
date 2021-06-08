@@ -107,6 +107,7 @@ fn main() {
     configure_build(cc::Build::new())
         .cpp(false)
         .files(ktx_sources(C_SOURCE_FILES))
+        .file("build/wrapper.c")
         .compile("ktx_c");
 
     let mut cxx_build = configure_build(cc::Build::new());

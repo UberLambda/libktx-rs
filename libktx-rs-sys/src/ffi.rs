@@ -2581,14 +2581,354 @@ fn bindgen_test_layout_ktxStream() {
         )
     );
 }
+pub const ktxFormatSizeFlagBits_KTX_FORMAT_SIZE_PACKED_BIT: ktxFormatSizeFlagBits = 1;
+pub const ktxFormatSizeFlagBits_KTX_FORMAT_SIZE_COMPRESSED_BIT: ktxFormatSizeFlagBits = 2;
+pub const ktxFormatSizeFlagBits_KTX_FORMAT_SIZE_PALETTIZED_BIT: ktxFormatSizeFlagBits = 4;
+pub const ktxFormatSizeFlagBits_KTX_FORMAT_SIZE_DEPTH_BIT: ktxFormatSizeFlagBits = 8;
+pub const ktxFormatSizeFlagBits_KTX_FORMAT_SIZE_STENCIL_BIT: ktxFormatSizeFlagBits = 16;
+pub type ktxFormatSizeFlagBits = ::std::os::raw::c_uint;
+pub type ktxFormatSizeFlags = ktx_uint32_t;
+#[doc = " @brief Structure for holding size information for a texture format."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct ktxTexture_vvtbl {
-    pub _address: u8,
+pub struct ktxFormatSize {
+    pub flags: ktxFormatSizeFlags,
+    #[doc = " For KTX1."]
+    pub paletteSizeInBits: ::std::os::raw::c_uint,
+    pub blockSizeInBits: ::std::os::raw::c_uint,
+    #[doc = " in texels"]
+    pub blockWidth: ::std::os::raw::c_uint,
+    #[doc = " in texels"]
+    pub blockHeight: ::std::os::raw::c_uint,
+    #[doc = " in texels"]
+    pub blockDepth: ::std::os::raw::c_uint,
+    #[doc = " Minimum required number of blocks"]
+    pub minBlocksX: ::std::os::raw::c_uint,
+    pub minBlocksY: ::std::os::raw::c_uint,
+}
+#[test]
+fn bindgen_test_layout_ktxFormatSize() {
+    assert_eq!(
+        ::std::mem::size_of::<ktxFormatSize>(),
+        32usize,
+        concat!("Size of: ", stringify!(ktxFormatSize))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ktxFormatSize>(),
+        4usize,
+        concat!("Alignment of ", stringify!(ktxFormatSize))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxFormatSize>())).flags as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxFormatSize),
+            "::",
+            stringify!(flags)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxFormatSize>())).paletteSizeInBits as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxFormatSize),
+            "::",
+            stringify!(paletteSizeInBits)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxFormatSize>())).blockSizeInBits as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxFormatSize),
+            "::",
+            stringify!(blockSizeInBits)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxFormatSize>())).blockWidth as *const _ as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxFormatSize),
+            "::",
+            stringify!(blockWidth)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxFormatSize>())).blockHeight as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxFormatSize),
+            "::",
+            stringify!(blockHeight)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxFormatSize>())).blockDepth as *const _ as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxFormatSize),
+            "::",
+            stringify!(blockDepth)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxFormatSize>())).minBlocksX as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxFormatSize),
+            "::",
+            stringify!(minBlocksX)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxFormatSize>())).minBlocksY as *const _ as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxFormatSize),
+            "::",
+            stringify!(minBlocksY)
+        )
+    );
+}
+extern "C" {
+    pub fn ktxFormatSize_initFromDfd(This: *mut ktxFormatSize, pDfd: *mut ktx_uint32_t) -> bool;
+}
+pub const ktxFormatVersionEnum_KTX_FORMAT_VERSION_ONE: ktxFormatVersionEnum = 1;
+pub const ktxFormatVersionEnum_KTX_FORMAT_VERSION_TWO: ktxFormatVersionEnum = 2;
+pub type ktxFormatVersionEnum = ::std::os::raw::c_uint;
+pub type PFNCALCDATASIZELEVELS = ::std::option::Option<
+    unsafe extern "C" fn(This: *mut ktxTexture, levels: ktx_uint32_t) -> ktx_size_t,
+>;
+pub type PFNCALCFACELODSIZE = ::std::option::Option<
+    unsafe extern "C" fn(This: *mut ktxTexture, level: ktx_uint32_t) -> ktx_size_t,
+>;
+pub type PFNCALCLEVELOFFSET = ::std::option::Option<
+    unsafe extern "C" fn(This: *mut ktxTexture, level: ktx_uint32_t) -> ktx_size_t,
+>;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ktxTexture_vtblInt {
+    pub calcDataSizeLevels: PFNCALCDATASIZELEVELS,
+    pub calcFaceLodSize: PFNCALCFACELODSIZE,
+    pub calcLevelOffset: PFNCALCLEVELOFFSET,
+}
+#[test]
+fn bindgen_test_layout_ktxTexture_vtblInt() {
+    assert_eq!(
+        ::std::mem::size_of::<ktxTexture_vtblInt>(),
+        24usize,
+        concat!("Size of: ", stringify!(ktxTexture_vtblInt))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ktxTexture_vtblInt>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ktxTexture_vtblInt))
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<ktxTexture_vtblInt>())).calcDataSizeLevels as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxTexture_vtblInt),
+            "::",
+            stringify!(calcDataSizeLevels)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<ktxTexture_vtblInt>())).calcFaceLodSize as *const _ as usize
+        },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxTexture_vtblInt),
+            "::",
+            stringify!(calcFaceLodSize)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<ktxTexture_vtblInt>())).calcLevelOffset as *const _ as usize
+        },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxTexture_vtblInt),
+            "::",
+            stringify!(calcLevelOffset)
+        )
+    );
+}
+#[doc = " @memberof ktxTexture"]
+#[doc = " @~English"]
+#[doc = ""]
+#[doc = " @brief protected members of ktxTexture."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct ktxTexture_protected {
+    pub _vtbl: ktxTexture_vtblInt,
+    pub _formatSize: ktxFormatSize,
+    pub _typeSize: ktx_uint32_t,
+    pub _stream: ktxStream,
+}
+#[test]
+fn bindgen_test_layout_ktxTexture_protected() {
+    assert_eq!(
+        ::std::mem::size_of::<ktxTexture_protected>(),
+        152usize,
+        concat!("Size of: ", stringify!(ktxTexture_protected))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ktxTexture_protected>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ktxTexture_protected))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxTexture_protected>()))._vtbl as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxTexture_protected),
+            "::",
+            stringify!(_vtbl)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<ktxTexture_protected>()))._formatSize as *const _ as usize
+        },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxTexture_protected),
+            "::",
+            stringify!(_formatSize)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxTexture_protected>()))._typeSize as *const _ as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxTexture_protected),
+            "::",
+            stringify!(_typeSize)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxTexture_protected>()))._stream as *const _ as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxTexture_protected),
+            "::",
+            stringify!(_stream)
+        )
+    );
+}
+extern "C" {
+    pub fn ktxTexture_iterateLoadedImages(
+        This: *mut ktxTexture,
+        iterCb: PFNKTXITERCB,
+        userdata: *mut ::std::os::raw::c_void,
+    ) -> ktx_error_code_e;
+}
+extern "C" {
+    pub fn ktxTexture_iterateSourceImages(
+        This: *mut ktxTexture,
+        iterCb: PFNKTXITERCB,
+        userdata: *mut ::std::os::raw::c_void,
+    ) -> ktx_error_code_e;
+}
+extern "C" {
+    pub fn ktxTexture_calcDataSizeTexture(This: *mut ktxTexture) -> ktx_size_t;
+}
+extern "C" {
+    pub fn ktxTexture_calcImageSize(
+        This: *mut ktxTexture,
+        level: ktx_uint32_t,
+        fv: ktxFormatVersionEnum,
+    ) -> ktx_size_t;
+}
+extern "C" {
+    pub fn ktxTexture_isActiveStream(This: *mut ktxTexture) -> ktx_bool_t;
+}
+extern "C" {
+    pub fn ktxTexture_calcLevelSize(
+        This: *mut ktxTexture,
+        level: ktx_uint32_t,
+        fv: ktxFormatVersionEnum,
+    ) -> ktx_size_t;
+}
+extern "C" {
+    pub fn ktxTexture_doCalcFaceLodSize(
+        This: *mut ktxTexture,
+        level: ktx_uint32_t,
+        fv: ktxFormatVersionEnum,
+    ) -> ktx_size_t;
+}
+extern "C" {
+    pub fn ktxTexture_layerSize(
+        This: *mut ktxTexture,
+        level: ktx_uint32_t,
+        fv: ktxFormatVersionEnum,
+    ) -> ktx_size_t;
+}
+extern "C" {
+    pub fn ktxTexture_rowInfo(
+        This: *mut ktxTexture,
+        level: ktx_uint32_t,
+        numRows: *mut ktx_uint32_t,
+        rowBytes: *mut ktx_uint32_t,
+        rowPadding: *mut ktx_uint32_t,
+    );
+}
+extern "C" {
+    pub fn ktxTexture_construct(
+        This: *mut ktxTexture,
+        createInfo: *mut ktxTextureCreateInfo,
+        formatSize: *mut ktxFormatSize,
+    ) -> ktx_error_code_e;
+}
+extern "C" {
+    pub fn ktxTexture_constructFromStream(
+        This: *mut ktxTexture,
+        pStream: *mut ktxStream,
+        createFlags: ktxTextureCreateFlags,
+    ) -> ktx_error_code_e;
+}
+extern "C" {
+    pub fn ktxTexture_destruct(This: *mut ktxTexture);
+}
+extern "C" {
+    #[doc = " Since the function in texture.h is private, re-export it here"]
+    pub fn ktxTexture_createFromStream(
+        pStream: *mut ktxStream,
+        createFlags: ktxTextureCreateFlags,
+        newTex: *mut *mut ktxTexture,
+    ) -> ktx_error_code_e;
+}
+extern "C" {
+    pub fn ktxTexture_CreateFromStream(
+        pStream: *mut ktxStream,
+        createFlags: ktxTextureCreateFlags,
+        newTex: *mut *mut ktxTexture,
+    ) -> ktx_error_code_e;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct ktxTexture_protected {
+pub struct ktxTexture_vvtbl {
     pub _address: u8,
 }
 #[doc = "< Private data."]

@@ -1,4 +1,8 @@
-use crate::{enums::CreateStorage, sys};
+use crate::{
+    enums::CreateStorage,
+    sys,
+    sys::stream::{RWSeekable, RustKtxStream},
+};
 use std::{marker::PhantomData, sync::Arc};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -121,6 +125,39 @@ impl<'a> Drop for Texture<'a> {
             if let Some(destroy_fn) = (*vtbl).Destroy {
                 (destroy_fn)(self.handle as *mut sys::ktxTexture);
             }
+        }
+    }
+}
+
+pub struct StreamTexture<'a> {
+    stream: RustKtxStream<'a>,
+    texture: Texture<'a>,
+}
+
+impl<'a> StreamTexture<'a> {
+    pub fn create(
+        stream: Box<dyn RWSeekable + 'a>,
+        create_flags: sys::ktxTextureCreateFlags,
+    ) -> Result<Self, String> {
+        let stream = RustKtxStream::new(stream)?;
+
+        let mut handle: *mut sys::ktxTexture = std::ptr::null_mut();
+        let handle_ptr: *mut *mut sys::ktxTexture = &mut handle;
+        let err = unsafe {
+            sys::ktxTexture_CreateFromStream(stream.ktx_stream(), create_flags, handle_ptr)
+        };
+        if err == sys::ktx_error_code_e_KTX_SUCCESS && !handle.is_null() {
+            Ok(StreamTexture {
+                stream,
+                texture: Texture {
+                    handle,
+                    handle_phantom: PhantomData,
+                    dfd: None,
+                },
+            })
+        } else {
+            // TODO proper formatting
+            Err(format!("{}", err))
         }
     }
 }

@@ -1,12 +1,13 @@
 use crate::*;
 use std::{
-    boxed,
     ffi::c_void,
     io::{Read, Seek, SeekFrom, Write},
     marker::PhantomData,
 };
 
 pub trait RWSeekable: Read + Write + Seek {}
+
+impl<T: Read + Write + Seek> RWSeekable for T {}
 
 /// An reference to a `RWSeekable`.
 ///
@@ -76,6 +77,12 @@ impl<'a> RustKtxStream<'a> {
             ktx_stream,
             ktx_phantom: PhantomData,
         })
+    }
+
+    pub fn ktx_stream(&self) -> *mut ktxStream {
+        // SAFETY: Actually safe.
+        //         The C API never mutates the inner pointer, just the pointed-to struct.
+        unsafe { std::mem::transmute::<_, _>(&*self.ktx_stream) }
     }
 }
 
@@ -186,6 +193,6 @@ unsafe extern "C" fn ktxRustStream_getsize(
 }
 
 #[no_mangle]
-unsafe extern "C" fn ktxRustStream_destruct(str: *mut ktxStream) {
+unsafe extern "C" fn ktxRustStream_destruct(_str: *mut ktxStream) {
     // No-op; `RustKtxStream::drop()` will do all the work.
 }
