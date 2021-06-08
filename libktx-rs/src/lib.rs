@@ -1,7 +1,5 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+pub use libktx_rs_sys as sys;
+
+pub mod enums;
+pub use enums::KtxError;
+pub mod texture;
