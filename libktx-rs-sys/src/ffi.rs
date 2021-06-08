@@ -21,7 +21,9 @@ pub type __int32_t = ::std::os::raw::c_int;
 pub type __uint32_t = ::std::os::raw::c_uint;
 pub type __int64_t = ::std::os::raw::c_long;
 pub type __uint64_t = ::std::os::raw::c_ulong;
+pub type __off_t = ::std::os::raw::c_long;
 pub type FILE = [u64; 27usize];
+pub type off_t = __off_t;
 #[doc = " To avoid including <KHR/khrplatform.h> define our own types."]
 pub type ktx_uint8_t = ::std::os::raw::c_uchar;
 pub type ktx_bool_t = bool;
@@ -2330,6 +2332,254 @@ extern "C" {
 }
 extern "C" {
     pub fn ktxPrintInfoForMemory(bytes: *const ktx_uint8_t, size: ktx_size_t) -> ktx_error_code_e;
+}
+pub type ktx_off_t = off_t;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ktxMem {
+    _unused: [u8; 0],
+}
+pub const streamType_eStreamTypeFile: streamType = 1;
+pub const streamType_eStreamTypeMemory: streamType = 2;
+pub type streamType = ::std::os::raw::c_uint;
+#[doc = " @internal"]
+#[doc = " @~English"]
+#[doc = " @brief type for a pointer to a stream reading function"]
+pub type ktxStream_read = ::std::option::Option<
+    unsafe extern "C" fn(
+        str_: *mut ktxStream,
+        dst: *mut ::std::os::raw::c_void,
+        count: ktx_size_t,
+    ) -> ktx_error_code_e,
+>;
+#[doc = " @internal"]
+#[doc = " @~English"]
+#[doc = " @brief type for a pointer to a stream skipping function"]
+pub type ktxStream_skip = ::std::option::Option<
+    unsafe extern "C" fn(str_: *mut ktxStream, count: ktx_size_t) -> ktx_error_code_e,
+>;
+#[doc = " @internal"]
+#[doc = " @~English"]
+#[doc = " @brief type for a pointer to a stream reading function"]
+pub type ktxStream_write = ::std::option::Option<
+    unsafe extern "C" fn(
+        str_: *mut ktxStream,
+        src: *const ::std::os::raw::c_void,
+        size: ktx_size_t,
+        count: ktx_size_t,
+    ) -> ktx_error_code_e,
+>;
+#[doc = " @internal"]
+#[doc = " @~English"]
+#[doc = " @brief type for a pointer to a stream position query function"]
+pub type ktxStream_getpos = ::std::option::Option<
+    unsafe extern "C" fn(str_: *mut ktxStream, offset: *mut ktx_off_t) -> ktx_error_code_e,
+>;
+#[doc = " @internal"]
+#[doc = " @~English"]
+#[doc = " @brief type for a pointer to a stream position query function"]
+pub type ktxStream_setpos = ::std::option::Option<
+    unsafe extern "C" fn(str_: *mut ktxStream, offset: ktx_off_t) -> ktx_error_code_e,
+>;
+#[doc = " @internal"]
+#[doc = " @~English"]
+#[doc = " @brief type for a pointer to a stream size query function"]
+pub type ktxStream_getsize = ::std::option::Option<
+    unsafe extern "C" fn(str_: *mut ktxStream, size: *mut ktx_size_t) -> ktx_error_code_e,
+>;
+#[doc = " @internal"]
+#[doc = " @~English"]
+#[doc = " @brief Destruct a stream"]
+pub type ktxStream_destruct = ::std::option::Option<unsafe extern "C" fn(str_: *mut ktxStream)>;
+#[doc = " @internal"]
+#[doc = " @~English"]
+#[doc = " @brief KTX stream class"]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct ktxStream {
+    #[doc = "< @internal pointer to function for reading bytes."]
+    pub read: ktxStream_read,
+    #[doc = "< @internal pointer to function for skipping bytes."]
+    pub skip: ktxStream_skip,
+    #[doc = "< @internal pointer to function for writing bytes."]
+    pub write: ktxStream_write,
+    #[doc = "< @internal pointer to function for getting current position in stream."]
+    pub getpos: ktxStream_getpos,
+    #[doc = "< @internal pointer to function for setting current position in stream."]
+    pub setpos: ktxStream_setpos,
+    #[doc = "< @internal pointer to function for querying size."]
+    pub getsize: ktxStream_getsize,
+    #[doc = "< @internal destruct the stream."]
+    pub destruct: ktxStream_destruct,
+    pub type_: streamType,
+    #[doc = "< @internal pointer to the stream data."]
+    pub data: ktxStream__bindgen_ty_1,
+    #[doc = "< @internal used by FileStream for stdin."]
+    pub readpos: ktx_off_t,
+    #[doc = "< @internal Close FILE* or dispose of memory on destruct."]
+    pub closeOnDestruct: ktx_bool_t,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union ktxStream__bindgen_ty_1 {
+    pub file: *mut FILE,
+    pub mem: *mut ktxMem,
+}
+#[test]
+fn bindgen_test_layout_ktxStream__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<ktxStream__bindgen_ty_1>(),
+        8usize,
+        concat!("Size of: ", stringify!(ktxStream__bindgen_ty_1))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ktxStream__bindgen_ty_1>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ktxStream__bindgen_ty_1))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream__bindgen_ty_1>())).file as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream__bindgen_ty_1),
+            "::",
+            stringify!(file)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream__bindgen_ty_1>())).mem as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream__bindgen_ty_1),
+            "::",
+            stringify!(mem)
+        )
+    );
+}
+#[test]
+fn bindgen_test_layout_ktxStream() {
+    assert_eq!(
+        ::std::mem::size_of::<ktxStream>(),
+        88usize,
+        concat!("Size of: ", stringify!(ktxStream))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ktxStream>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ktxStream))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).read as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(read)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).skip as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(skip)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).write as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(write)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).getpos as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(getpos)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).setpos as *const _ as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(setpos)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).getsize as *const _ as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(getsize)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).destruct as *const _ as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(destruct)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).type_ as *const _ as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).data as *const _ as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(data)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).readpos as *const _ as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(readpos)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxStream>())).closeOnDestruct as *const _ as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxStream),
+            "::",
+            stringify!(closeOnDestruct)
+        )
+    );
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]

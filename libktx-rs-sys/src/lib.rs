@@ -7,3 +7,5 @@
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 #[cfg(not(feature = "run-bindgen"))]
 include!("ffi.rs");
+
+pub mod stream;

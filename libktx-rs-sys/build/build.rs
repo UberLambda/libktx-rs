@@ -18,7 +18,7 @@ const INCLUDE_DIRS: &[&str] = &[
 ];
 
 #[cfg(feature = "run-bindgen")]
-const MAIN_HEADER: &str = "build/KTX-Software/include/ktx.h";
+const MAIN_HEADER: &str = "build/wrapper.h";
 
 const C_SOURCE_FILES: &[&str] = &[
     "lib/basisu/zstd/zstd.c",
@@ -134,6 +134,7 @@ fn main() {
             .allowlist_var(r"[Kk][Tt][Xx].*")
             //
             .clang_arg("-fparse-all-comments")
+            .clang_args(INCLUDE_DIRS.iter().map(|id| format!("-I{}", id)))
             .generate()
             .expect("generating the bindings");
 

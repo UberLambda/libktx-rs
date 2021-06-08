@@ -3,5 +3,7 @@ bindgen \
     --opaque-type 'FILE' \
     --allowlist-function 'ktx.*' --allowlist-type '[Kk][Tt][Xx].*' --allowlist-var '[Kk][Tt][Xx].*' \
     --output "${SELF_DIR}/../src/ffi.rs" \
-    "${SELF_DIR}/KTX-Software/include/ktx.h" \
-    -- -fparse-all-comments -U_MSC_VER
+    "${SELF_DIR}/wrapper.h" \
+    -- \
+    -fparse-all-comments -U_MSC_VER \
+    -I "${SELF_DIR}/KTX-Software/include" -I "${SELF_DIR}/KTX-Software/lib" \
