@@ -18,6 +18,11 @@ build = "build/build.rs"
 # Run bindgen as part of the build process?
 "run-bindgen" = ["bindgen"]
 
+# Support software ETC unpacking?
+# >>> Enabling this feature makes a non-open-source file be compiled along with the library! <<<
+# This is disabled by default to be able to ship this library as Apache-2.0.
+"nonfree-etc-unpack" = []
+
 [dependencies]
 log = { version = "^0.4" }
 

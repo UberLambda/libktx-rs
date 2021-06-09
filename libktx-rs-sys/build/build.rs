@@ -50,8 +50,10 @@ const C_SOURCE_FILES: &[&str] = &[
 const CXX_SOURCE_FILES: &[&str] = &[
     "lib/basis_transcode.cpp",
     "lib/basisu/transcoder/basisu_transcoder.cpp",
-    "lib/etcdec.cxx",
     "lib/etcunpack.cxx",
+    // this file is not open source, so it's gated behind a feature. see readme.
+    #[cfg(feature = "nonfree-etc-unpack")]
+    "lib/etcdec.cxx",
 ];
 
 fn configure_build(mut build: cc::Build) -> cc::Build {
@@ -69,6 +71,14 @@ fn configure_build(mut build: cc::Build) -> cc::Build {
         .define("KTX_FEATURE_GL_UPLOAD", "0")
         .define("KTX_FEATURE_VULKAN", "0")
         .define("KTX_OMIT_VULKAN", "1");
+
+    // lib/etcdec.cxx is not open source, so it's gated behind a feature. see readme.
+    let have_software_etc = if cfg!(feature = "nonfree-etc-unpack") {
+        "1"
+    } else {
+        "0"
+    };
+    build.define("SUPPORT_SOFTWARE_ETC_UNPACK", have_software_etc);
 
     let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
     let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap();
