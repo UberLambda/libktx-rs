@@ -17,7 +17,7 @@ impl<'a> Debug for dyn RWSeekable + 'a {
     }
 }
 
-/// An reference to a `RWSeekable`.
+/// A reference to a `RWSeekable`.
 ///
 /// Pointers/references to Rust DSTs are "fat"; twice the size of a normal pointer (and possibly more in the future).  
 /// As such, **transmuting C pointers to Rust pointers is not generally possible**.  
