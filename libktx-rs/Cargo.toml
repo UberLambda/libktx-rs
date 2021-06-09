@@ -12,6 +12,7 @@ edition = "2018"
 
 [dependencies]
 libktx-rs-sys = { path = "../libktx-rs-sys", version = "0.1.0" }
+bitflags = "^1.2"
 
 [dev-dependencies]
 libktx-rs-macros = { path = "../libktx-rs-macros", version = "0.1.0" }

@@ -1,5 +1,5 @@
 use crate::{
-    enums::CreateStorage,
+    enums::{CreateStorage, TextureCreateFlags},
     sys,
     sys::stream::{RWSeekable, RustKtxStream},
 };
@@ -138,14 +138,14 @@ pub struct StreamTexture<'a> {
 impl<'a> StreamTexture<'a> {
     pub fn create(
         stream: Box<dyn RWSeekable + 'a>,
-        create_flags: sys::ktxTextureCreateFlags,
+        create_flags: TextureCreateFlags,
     ) -> Result<Self, String> {
         let stream = RustKtxStream::new(stream)?;
 
         let mut handle: *mut sys::ktxTexture = std::ptr::null_mut();
         let handle_ptr: *mut *mut sys::ktxTexture = &mut handle;
         let err = unsafe {
-            sys::ktxTexture_CreateFromStream(stream.ktx_stream(), create_flags, handle_ptr)
+            sys::ktxTexture_CreateFromStream(stream.ktx_stream(), create_flags.bits(), handle_ptr)
         };
         if err == sys::ktx_error_code_e_KTX_SUCCESS && !handle.is_null() {
             Ok(StreamTexture {

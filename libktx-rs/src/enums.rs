@@ -1,3 +1,5 @@
+use crate::sys;
+use bitflags::bitflags;
 use std::{
     convert::TryFrom,
     error::Error,
@@ -5,13 +7,20 @@ use std::{
     fmt::{Display, Formatter},
 };
 
-use crate::sys;
-
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 #[repr(u32)]
 pub enum CreateStorage {
     NoStorage = sys::ktxTextureCreateStorageEnum_KTX_TEXTURE_CREATE_NO_STORAGE,
     AllocStorage = sys::ktxTextureCreateStorageEnum_KTX_TEXTURE_CREATE_ALLOC_STORAGE,
+}
+
+bitflags! {
+    #[derive(Default)]
+    pub struct TextureCreateFlags: u32 {
+        const LOAD_IMAGE_DATA = sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT;
+        const RAW_KVDATA = sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_RAW_KVDATA_BIT;
+        const SKIP_KVDATA = sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_SKIP_KVDATA_BIT;
+    }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -68,6 +77,7 @@ impl TryFrom<u32> for KtxError {
 
 impl Display for KtxError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        // SAFETY: Safe - this just accessess a C array of strings under the hood
         let c_str = unsafe { CStr::from_ptr(sys::ktxErrorString(*self as u32)) };
         match c_str.to_str() {
             Ok(msg) => write!(f, "{}", msg),
