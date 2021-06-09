@@ -1,2 +1,2 @@
 [workspace]
-members = ["libktx-rs-sys", "libktx-rs"]
+members = ["libktx-rs-sys", "libktx-rs", "libktx-rs-macros"]
