@@ -127,6 +127,22 @@ bitflags! {
     }
 }
 
+bitflags! {
+    pub struct PackUastcFlags: u32 {
+        const LEVEL_FASTEST  = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_LEVEL_FASTEST;
+        const LEVEL_FASTER   = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_LEVEL_FASTER;
+        const LEVEL_DEFAULT  = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_LEVEL_DEFAULT;
+        const LEVEL_SLOWER   = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_LEVEL_SLOWER;
+        const LEVEL_VERYSLOW = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_LEVEL_VERYSLOW;
+        const LEVEL_MASK     = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_LEVEL_MASK;
+        const FAVOR_UASTC_ERROR = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_FAVOR_UASTC_ERROR;
+        const FAVOR_BC7_ERROR = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_FAVOR_BC7_ERROR;
+        const ETC1_FASTER_HINTS = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_ETC1_FASTER_HINTS;
+        const ETC1_FASTEST_HINTS = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_ETC1_FASTEST_HINTS;
+        const _ETC1_DISABLE_FLIP_AND_INDIVIDUAL = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC__ETC1_DISABLE_FLIP_AND_INDIVIDUAL;
+}
+}
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 #[repr(u32)]
 pub enum TranscodeFormat {
