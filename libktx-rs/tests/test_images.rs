@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Paolo Jovon <paolo.jovon@gmail.com>
+// SPDX-License-Identifier: Apache-2.0
+
 #[cfg(feature = "test-images")]
 mod test_images {
     use libktx_rs::{sources::StreamSource, RustKtxStream, Texture, TextureCreateFlags};
