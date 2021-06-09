@@ -1,27 +1,28 @@
 use crate::{
     enums::{CreateStorage, TextureCreateFlags},
-    sys,
-    sys::stream::{RWSeekable, RustKtxStream},
+    sys::{self, stream::RustKtxStream},
     KtxError,
 };
 use std::{convert::TryInto, marker::PhantomData};
 
 pub struct Texture<'a> {
-    source: Box<dyn TextureSource + 'a>,
+    // Not actually dead - there most likely are raw pointers referencing this!!
+    #[allow(dead_code)]
+    source: Box<dyn TextureSource<'a> + 'a>,
     handle: *mut sys::ktxTexture,
     handle_phantom: PhantomData<&'a sys::ktxTexture>,
 }
 
-pub trait TextureSource {
-    fn create_texture<'a>(self) -> Result<Texture<'a>, KtxError>;
+pub trait TextureSource<'a> {
+    fn create_texture(self) -> Result<Texture<'a>, KtxError>;
 }
 
 impl<'a> Texture<'a> {
     pub fn new<S>(source: S) -> Result<Self, KtxError>
     where
-        S: TextureSource,
+        S: TextureSource<'a>,
     {
-        source.create_texture::<'a>()
+        source.create_texture()
     }
 }
 
@@ -84,7 +85,7 @@ impl Default for Ktx1CreateInfo {
 
 fn try_create_texture<'a, S, C>(source: S, create_fn: C) -> Result<Texture<'a>, KtxError>
 where
-    S: TextureSource + 'a,
+    S: TextureSource<'a> + 'a,
     C: FnOnce(S) -> (S, sys::ktx_error_code_e, *mut sys::ktxTexture),
 {
     let (source, err, handle) = (create_fn)(source);
@@ -99,8 +100,8 @@ where
     }
 }
 
-impl TextureSource for Ktx1CreateInfo {
-    fn create_texture<'a>(self) -> Result<Texture<'a>, KtxError> {
+impl<'a> TextureSource<'a> for Ktx1CreateInfo {
+    fn create_texture(self) -> Result<Texture<'a>, KtxError> {
         let mut sys_create_info = sys::ktxTextureCreateInfo {
             glInternalformat: self.gl_internal_format,
             vkFormat: 0,
@@ -149,8 +150,8 @@ impl Default for Ktx2CreateInfo {
     }
 }
 
-impl TextureSource for Ktx2CreateInfo {
-    fn create_texture<'a>(mut self) -> Result<Texture<'a>, KtxError> {
+impl<'a> TextureSource<'a> for Ktx2CreateInfo {
+    fn create_texture(mut self) -> Result<Texture<'a>, KtxError> {
         // SAFETY: the contents of the Vec will not change or move around memory
         // - libKTX does not modify the given DFD pointer
         //   (but then, why no `const` in the C API pointer?)
@@ -191,26 +192,26 @@ impl TextureSource for Ktx2CreateInfo {
     }
 }
 
-//#[cfg(unused)]
-//impl Source for RustKtxStream {
-//    let stream = RustKtxStream::new(stream)?;
-//
-//    let mut handle: *mut sys::ktxTexture = std::ptr::null_mut();
-//    let handle_ptr: *mut *mut sys::ktxTexture = &mut handle;
-//    let err = unsafe {
-//        sys::ktxTexture_CreateFromStream(stream.ktx_stream(), create_flags.bits(), handle_ptr)
-//    };
-//    if err == sys::ktx_error_code_e_KTX_SUCCESS && !handle.is_null() {
-//        Ok(StreamTexture {
-//            stream,
-//            texture: Texture {
-//                handle,
-//                handle_phantom: PhantomData,
-//                dfd: None,
-//            },
-//        })
-//    } else {
-//        // TODO proper formatting
-//        Err(format!("{}", err))
-//    }
-//}
+#[derive(Debug)]
+pub struct StreamSource<'a> {
+    pub stream: RustKtxStream<'a>,
+    pub texture_create_flags: TextureCreateFlags,
+}
+
+impl<'a> TextureSource<'a> for StreamSource<'a> {
+    fn create_texture(self) -> Result<Texture<'a>, KtxError> {
+        try_create_texture(self, |source| {
+            let mut handle: *mut sys::ktxTexture = std::ptr::null_mut();
+            let handle_ptr: *mut *mut sys::ktxTexture = &mut handle;
+
+            let err = unsafe {
+                sys::ktxTexture_createFromStream(
+                    source.stream.ktx_stream(),
+                    source.texture_create_flags.bits(),
+                    handle_ptr,
+                )
+            };
+            (source, err, handle)
+        })
+    }
+}

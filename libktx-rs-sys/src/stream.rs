@@ -57,7 +57,7 @@ pub struct RustKtxStream<'a> {
 }
 
 impl<'a> RustKtxStream<'a> {
-    pub fn new(inner: Box<dyn RWSeekable + 'a>) -> Result<Self, String> {
+    pub fn new(inner: Box<dyn RWSeekable + 'a>) -> Result<Self, ktx_error_code_e> {
         let boxed_inner_ref = Box::new(RWSeekableRef::new(inner));
         let inner_ref = Box::into_raw(boxed_inner_ref);
 
@@ -100,6 +100,16 @@ impl<'a> Drop for RustKtxStream<'a> {
         //         call in `new()`, so it should always be fine to reconstruct the box here.
         let inner_ref = unsafe { Box::from_raw(self.inner_ref) };
         std::mem::drop(inner_ref)
+    }
+}
+
+impl<'a> Debug for RustKtxStream<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "RustKtxStream(inner={:?}, ktxStream={:p})",
+            self.inner_ref, self.ktx_stream
+        )
     }
 }
 

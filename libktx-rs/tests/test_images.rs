@@ -1,14 +1,16 @@
 #[cfg(feature = "test-images")]
 mod test_images {
-    use libktx_rs::{self as ktx};
+    use libktx_rs::{RustKtxStream, StreamSource, Texture, TextureCreateFlags};
     use libktx_rs_macros::file_tests;
     use std::fs::File;
 
     fn from_stream(file: File) {
-        let stream_texture = StreamTexture::create(
-            Box::new(file),
-            sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
-        );
+        let stream = RustKtxStream::new(Box::new(file)).expect("the Rust ktxStream");
+        let source = StreamSource {
+            stream,
+            texture_create_flags: TextureCreateFlags::LOAD_IMAGE_DATA,
+        };
+        let stream_texture = Texture::new(source);
         stream_texture.expect("the loaded KTX");
     }
 
