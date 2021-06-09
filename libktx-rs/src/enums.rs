@@ -12,22 +12,6 @@ use std::{
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 #[repr(u32)]
-pub enum CreateStorage {
-    NoStorage = sys::ktxTextureCreateStorageEnum_KTX_TEXTURE_CREATE_NO_STORAGE,
-    AllocStorage = sys::ktxTextureCreateStorageEnum_KTX_TEXTURE_CREATE_ALLOC_STORAGE,
-}
-
-bitflags! {
-    #[derive(Default)]
-    pub struct TextureCreateFlags: u32 {
-        const LOAD_IMAGE_DATA = sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT;
-        const RAW_KVDATA = sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_RAW_KVDATA_BIT;
-        const SKIP_KVDATA = sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_SKIP_KVDATA_BIT;
-    }
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-#[repr(u32)]
 pub enum KtxError {
     FileDataError = sys::ktx_error_code_e_KTX_FILE_DATA_ERROR,
     FileIsPipe = sys::ktx_error_code_e_KTX_FILE_ISPIPE,
@@ -90,3 +74,139 @@ impl Display for KtxError {
 }
 
 impl Error for KtxError {}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub enum SuperCompressionScheme {
+    None,
+    BasisLZ,
+    ZStd,
+    Vendor(u32),
+}
+
+impl Default for SuperCompressionScheme {
+    fn default() -> Self {
+        SuperCompressionScheme::None
+    }
+}
+
+impl From<SuperCompressionScheme> for u32 {
+    fn from(scheme: SuperCompressionScheme) -> Self {
+        match scheme {
+            SuperCompressionScheme::None => sys::ktxSupercmpScheme_KTX_SS_NONE,
+            SuperCompressionScheme::BasisLZ => sys::ktxSupercmpScheme_KTX_SUPERCOMPRESSION_BASIS,
+            SuperCompressionScheme::ZStd => sys::ktxSupercmpScheme_KTX_SUPERCOMPRESSION_ZSTD,
+            SuperCompressionScheme::Vendor(value) => value,
+        }
+    }
+}
+
+impl Display for SuperCompressionScheme {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        // SAFETY: Safe - this is a C switch/case under the hood, with invalid value checking
+        let c_str = unsafe { CStr::from_ptr(sys::ktxSupercompressionSchemeString((*self).into())) };
+        match c_str.to_str() {
+            Ok(msg) => write!(f, "{}", msg),
+            _ => Err(std::fmt::Error),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[repr(u32)]
+pub enum CreateStorage {
+    NoStorage = sys::ktxTextureCreateStorageEnum_KTX_TEXTURE_CREATE_NO_STORAGE,
+    AllocStorage = sys::ktxTextureCreateStorageEnum_KTX_TEXTURE_CREATE_ALLOC_STORAGE,
+}
+
+bitflags! {
+    #[derive(Default)]
+    pub struct TextureCreateFlags: u32 {
+        const LOAD_IMAGE_DATA = sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT;
+        const RAW_KVDATA = sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_RAW_KVDATA_BIT;
+        const SKIP_KVDATA = sys::ktxTextureCreateFlagBits_KTX_TEXTURE_CREATE_SKIP_KVDATA_BIT;
+    }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[repr(u32)]
+pub enum TranscodeFormat {
+    // ETC
+    Etc1Rgb = sys::ktx_transcode_fmt_e_KTX_TTF_ETC1_RGB,
+    Etc2Rgba = sys::ktx_transcode_fmt_e_KTX_TTF_ETC2_RGBA,
+    // BC
+    Bc1Rgb = sys::ktx_transcode_fmt_e_KTX_TTF_BC1_RGB,
+    Bc3Rgba = sys::ktx_transcode_fmt_e_KTX_TTF_BC3_RGBA,
+    Bc3R = sys::ktx_transcode_fmt_e_KTX_TTF_BC4_R,
+    Bc5Rg = sys::ktx_transcode_fmt_e_KTX_TTF_BC5_RG,
+    Bc7Rgba = sys::ktx_transcode_fmt_e_KTX_TTF_BC7_RGBA,
+    // PVRTC 1
+    Pvrtc14Rgb = sys::ktx_transcode_fmt_e_KTX_TTF_PVRTC1_4_RGB,
+    Pvrtc14Rgba = sys::ktx_transcode_fmt_e_KTX_TTF_PVRTC1_4_RGBA,
+    // ASTC
+    Astc4x4Rgba = sys::ktx_transcode_fmt_e_KTX_TTF_ASTC_4x4_RGBA,
+    // PVRTC 2
+    Pvrtc24Rgb = sys::ktx_transcode_fmt_e_KTX_TTF_PVRTC2_4_RGB,
+    Pvrtc24Rgba = sys::ktx_transcode_fmt_e_KTX_TTF_PVRTC2_4_RGBA,
+    // EAC
+    Etc2EacR11 = sys::ktx_transcode_fmt_e_KTX_TTF_ETC2_EAC_R11,
+    Etc2EacRg11 = sys::ktx_transcode_fmt_e_KTX_TTF_ETC2_EAC_RG11,
+    // Uncompressed (raw)
+    Rgba32 = sys::ktx_transcode_fmt_e_KTX_TTF_RGBA32,
+    Rgb565 = sys::ktx_transcode_fmt_e_KTX_TTF_RGB565,
+    Bgr565 = sys::ktx_transcode_fmt_e_KTX_TTF_BGR565,
+    Rgba4444 = sys::ktx_transcode_fmt_e_KTX_TTF_RGBA4444,
+    // Automatic selection
+    Etc = sys::ktx_transcode_fmt_e_KTX_TTF_ETC,
+    Bc1or3 = sys::ktx_transcode_fmt_e_KTX_TTF_BC1_OR_3,
+    // Misc.
+    NoSelection = sys::ktx_transcode_fmt_e_KTX_TTF_NOSELECTION,
+}
+
+impl TryFrom<u32> for TranscodeFormat {
+    type Error = &'static str;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        // TODO: A bit ugly (but still manageable), convert to a macro?
+        Ok(match value {
+            sys::ktx_transcode_fmt_e_KTX_TTF_ETC1_RGB => Self::Etc1Rgb,
+            sys::ktx_transcode_fmt_e_KTX_TTF_ETC2_RGBA => Self::Etc2Rgba,
+            // BC
+            sys::ktx_transcode_fmt_e_KTX_TTF_BC1_RGB => Self::Bc1Rgb,
+            sys::ktx_transcode_fmt_e_KTX_TTF_BC3_RGBA => Self::Bc3Rgba,
+            sys::ktx_transcode_fmt_e_KTX_TTF_BC4_R => Self::Bc3R,
+            sys::ktx_transcode_fmt_e_KTX_TTF_BC5_RG => Self::Bc5Rg,
+            sys::ktx_transcode_fmt_e_KTX_TTF_BC7_RGBA => Self::Bc7Rgba,
+            // PVRTC 1
+            sys::ktx_transcode_fmt_e_KTX_TTF_PVRTC1_4_RGB => Self::Pvrtc14Rgb,
+            sys::ktx_transcode_fmt_e_KTX_TTF_PVRTC1_4_RGBA => Self::Pvrtc14Rgba,
+            // ASTC
+            sys::ktx_transcode_fmt_e_KTX_TTF_ASTC_4x4_RGBA => Self::Astc4x4Rgba,
+            // PVRTC 2
+            sys::ktx_transcode_fmt_e_KTX_TTF_PVRTC2_4_RGB => Self::Pvrtc24Rgb,
+            sys::ktx_transcode_fmt_e_KTX_TTF_PVRTC2_4_RGBA => Self::Pvrtc24Rgba,
+            // EAC
+            sys::ktx_transcode_fmt_e_KTX_TTF_ETC2_EAC_R11 => Self::Etc2EacR11,
+            sys::ktx_transcode_fmt_e_KTX_TTF_ETC2_EAC_RG11 => Self::Etc2EacRg11,
+            // Uncompressed (raw)
+            sys::ktx_transcode_fmt_e_KTX_TTF_RGBA32 => Self::Rgba32,
+            sys::ktx_transcode_fmt_e_KTX_TTF_RGB565 => Self::Rgb565,
+            sys::ktx_transcode_fmt_e_KTX_TTF_BGR565 => Self::Bgr565,
+            sys::ktx_transcode_fmt_e_KTX_TTF_RGBA4444 => Self::Rgba4444,
+            // Automatic selection
+            sys::ktx_transcode_fmt_e_KTX_TTF_ETC => Self::Etc,
+            sys::ktx_transcode_fmt_e_KTX_TTF_BC1_OR_3 => Self::Bc1or3,
+            // Misc.
+            sys::ktx_transcode_fmt_e_KTX_TTF_NOSELECTION => Self::NoSelection,
+            _ => return Err("Not a KTX_ error variant"),
+        })
+    }
+}
+
+bitflags! {
+    #[derive(Default)]
+    pub struct TranscodeFlags: u32 {
+        const PVRTC_DECODE_TO_NEXT_POW2 = sys::ktx_transcode_flag_bits_e_KTX_TF_PVRTC_DECODE_TO_NEXT_POW2;
+        const TRANSCODE_ALPHA_DATA_TO_OPAQUE_FORMATS = sys::ktx_transcode_flag_bits_e_KTX_TF_TRANSCODE_ALPHA_DATA_TO_OPAQUE_FORMATS;
+        const HIGH_QUALITY = sys::ktx_transcode_flag_bits_e_KTX_TF_HIGH_QUALITY;
+    }
+}
