@@ -5,5 +5,13 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+# Enable tests that use the images in `libktx-rs-sys/build/KTX-Software/tests`.
+# Note that the KTX-Software submodule should be cloned with git-lfs!
+"test-images" = []
+
 [dependencies]
 libktx-rs-sys = { path = "../libktx-rs-sys", version = "0.1.0" }
+
+[dev-dependencies]
+libktx-rs-macros = { path = "../libktx-rs-macros", version = "0.1.0" }

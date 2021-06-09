@@ -9,7 +9,7 @@ fn create_default_ktx1() {
         },
         libktx_rs::CreateStorage::AllocStorage,
     )
-    .expect("a default KTX2 texture");
+    .expect("a default KTX1 texture");
 }
 
 #[test]
