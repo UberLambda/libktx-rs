@@ -56,6 +56,20 @@ const CXX_SOURCE_FILES: &[&str] = &[
     "lib/etcdec.cxx",
 ];
 
+fn spooky_warning(msg: &str) {
+    // @s are the most spooky character, as demonstrated by openSSH's warnings.
+    println!("cargo:warning={:@<120}", "");
+    for line in msg.split_terminator("\n") {
+        println!("cargo:warning=@  {: ^114}  @", line);
+    }
+    println!("cargo:warning={:@<120}", "");
+}
+
+const NONFREE_ETC_WARN: &str = "feature(nonfree-etc-unpack) is enabled!
+This feature enables compilation of KTX-Software/lib/etcdec.cxx, which is proprietary software!
+This taints the license of the code, which is NOT fully Apache-2.0-licensed anymore!
+For a fully Apache-2.0-licensed codebase, disable the feature in question.";
+
 fn configure_build(mut build: cc::Build) -> cc::Build {
     build
         .includes(INCLUDE_DIRS)
@@ -74,6 +88,7 @@ fn configure_build(mut build: cc::Build) -> cc::Build {
 
     // lib/etcdec.cxx is not open source, so it's gated behind a feature. see readme.
     let have_software_etc = if cfg!(feature = "nonfree-etc-unpack") {
+        spooky_warning(NONFREE_ETC_WARN);
         "1"
     } else {
         "0"
