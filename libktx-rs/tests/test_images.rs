@@ -14,7 +14,7 @@ mod test_images {
         stream_texture.expect("the loaded KTX");
     }
 
-    // FIXME: These glob pattersn assume that `cargo build` is invoked from the root of the workspace!
+    // FIXME: These glob patterns assume that `cargo build` is invoked from the root of the workspace!
     file_tests! {from_stream =>
         "libktx-rs-sys/build/KTX-Software/tests/testimages/*.ktx?",
     }
