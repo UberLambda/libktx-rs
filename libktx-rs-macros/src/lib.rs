@@ -75,6 +75,7 @@ pub fn file_tests(input: TokenStream) -> TokenStream {
             #[test]
             fn #fn_ident() {
                 let path = std::path::PathBuf::from(#path_str);
+                println!(">>> Test file: {} <<<", #path_str);
                 match std::fs::File::open(path) {
                     Ok(file) => #test_fn(file),
                     Err(err) => panic!("Error loading test file: {}: {}", #path_str, err),
