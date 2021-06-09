@@ -1,6 +1,6 @@
 #[cfg(feature = "test-images")]
 mod test_images {
-    use libktx_rs::{self as ktx, sys, StreamTexture};
+    use libktx_rs::{self as ktx};
     use libktx_rs_macros::file_tests;
     use std::fs::File;
 

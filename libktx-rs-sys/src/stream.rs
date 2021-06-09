@@ -2,6 +2,7 @@ use crate::*;
 use log;
 use std::{
     ffi::c_void,
+    fmt::Debug,
     io::{Read, Seek, SeekFrom, Write},
     marker::PhantomData,
 };
@@ -9,6 +10,12 @@ use std::{
 pub trait RWSeekable: Read + Write + Seek {}
 
 impl<T: Read + Write + Seek> RWSeekable for T {}
+
+impl<'a> Debug for dyn RWSeekable + 'a {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "RWSeekable({:p})", self)
+    }
+}
 
 /// An reference to a `RWSeekable`.
 ///
