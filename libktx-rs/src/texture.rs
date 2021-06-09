@@ -130,6 +130,7 @@ impl<'a> Drop for Texture<'a> {
 }
 
 pub struct StreamTexture<'a> {
+    #[allow(unused)]
     stream: RustKtxStream<'a>,
     texture: Texture<'a>,
 }
