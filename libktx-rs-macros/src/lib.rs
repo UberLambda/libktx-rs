@@ -5,7 +5,7 @@ use glob::glob;
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::quote;
-use std::{collections::HashSet, iter::FromIterator};
+use std::{collections::HashSet, iter::FromIterator, ops::Sub};
 use syn::{
     self,
     parse::{Parse, ParseStream, Result},
@@ -14,47 +14,67 @@ use syn::{
     Ident, LitStr, Path, Token,
 };
 
-type LitStrList = Punctuated<LitStr, Token![,]>;
+struct GlobPattern {
+    inverted: bool,
+    pattern: LitStr,
+}
+
+impl Parse for GlobPattern {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let inverted = input.parse::<Token![!]>().is_ok();
+        let pattern = input.parse()?;
+        Ok(GlobPattern { inverted, pattern })
+    }
+}
+
+type GlobPatternList = Punctuated<GlobPattern, Token![,]>;
 
 struct FileTestsInput {
     test_fn: Path,
-    globs: LitStrList,
+    globs: GlobPatternList,
 }
 
 impl Parse for FileTestsInput {
     fn parse(input: ParseStream) -> Result<Self> {
         let test_fn: Path = input.parse()?;
         input.parse::<Token![=>]>()?;
-        let globs: LitStrList = input.parse_terminated(<LitStr as Parse>::parse)?;
+        let globs: GlobPatternList = input.parse_terminated(GlobPattern::parse)?;
         Ok(FileTestsInput { test_fn, globs })
     }
 }
 
+fn glob_all<'a>(patterns: impl Iterator<Item = &'a GlobPattern>) -> HashSet<std::path::PathBuf> {
+    patterns
+        .filter_map(|pattern| glob(pattern.pattern.value().as_str()).ok())
+        .flat_map(|paths| paths.filter_map(|path| path.ok()))
+        .collect()
+}
+
 /// ```rust,ignore
-/// file_tests!(test_fn => "glob", "glob", ...);
+/// file_tests!(test_fn => "glob", !"glob", ...);
 /// ````
 /// For each file matching the given glob pattern[s] (at compile time!), generates a `#[test]` that invokes
 /// ```rust,ignore
 /// fn test_fn(file: std::fs::File);
 /// ````
+/// Globs preceded by `!` are inverted (matches are removed).
 #[proc_macro]
 pub fn file_tests(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as FileTestsInput);
 
-    let test_files: HashSet<std::path::PathBuf> = input
-        .globs
-        .iter()
-        .filter_map(|pattern| glob(pattern.value().as_str()).ok())
-        .flat_map(|paths| paths.filter_map(|path| path.ok()))
-        .collect();
+    let glob_accepted = glob_all(input.globs.iter().filter(|pattern| !pattern.inverted));
+    let glob_rejected = glob_all(input.globs.iter().filter(|pattern| pattern.inverted));
+    let test_files = glob_accepted.sub(&glob_rejected);
+
     let test_fn_name = input.test_fn.segments.last().unwrap().ident.to_string();
 
-    let fns_tokens = test_files.iter().map(|path| {
+    let fns_tokens = test_files.iter().enumerate().map(|(i, path)| {
         let mut fn_name = path
             .file_stem()
             .map(|name| {
                 format!(
-                    "test_{}_{}",
+                    "test{}_{}_{}",
+                    i,
                     test_fn_name,
                     name.to_str().expect("Invalid filename")
                 )
