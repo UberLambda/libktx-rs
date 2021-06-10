@@ -13,7 +13,15 @@ mod test_images {
             stream,
             texture_create_flags: TextureCreateFlags::LOAD_IMAGE_DATA,
         };
-        let stream_texture = Texture::new(source).expect("the loaded KTX");
+        let mut stream_texture = Texture::new(source).expect("the loaded KTX");
+
+        if let Some(_) = stream_texture.ktx1() {
+            println!("Texture is KTX1");
+        } else if let Some(_) = stream_texture.ktx2() {
+            println!("Texture is KTX2");
+        } else {
+            panic!("The loaded texture should be either KTX1 or KTX2!");
+        }
 
         println!(
             "Data size: {}, element size: {}, row pitch: {}",
@@ -25,6 +33,8 @@ mod test_images {
 
     // FIXME: These glob patterns assume that `cargo build` is invoked from the root of the workspace!
     file_tests! {from_stream =>
-        "libktx-rs-sys/build/KTX-Software/tests/testimages/*.ktx?",
+        "libktx-rs-sys/build/KTX-Software/tests/testimages/*.ktx*",
+        // This one has a unsupported image type, skip
+        !"libktx-rs-sys/build/KTX-Software/tests/testimages/luminance-reference-metadata.ktx",
     }
 }
