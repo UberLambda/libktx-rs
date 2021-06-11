@@ -11,4 +11,7 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 #[cfg(not(feature = "run-bindgen"))]
 include!("ffi.rs");
 
+pub type ktxStream__data = ktxStream__bindgen_ty_1;
+pub type ktxStream__custom_ptr = ktxStream__bindgen_ty_1__bindgen_ty_1;
+
 pub mod stream;

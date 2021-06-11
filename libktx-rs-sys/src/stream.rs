@@ -74,11 +74,14 @@ impl<'a> RustKtxStream<'a> {
             destruct: Some(ktxRustStream_destruct),
             // Prevent the C API from messing with Rust structs
             closeOnDestruct: false,
-            // HACK: Let's recycle the fields that are normally used by ktxMem to point to a Rust trait!
             // SAFETY: This should be safe. The C API only sees an opaque handle at the end of the day.
-            type_: streamType_eStreamTypeMemory,
-            data: ktxStream__bindgen_ty_1 {
-                mem: inner_ref as *mut ktxMem,
+            type_: streamType_eStreamTypeCustom,
+            data: ktxStream__data {
+                custom_ptr: ktxStream__custom_ptr {
+                    address: inner_ref as *mut c_void,
+                    allocatorAddress: std::ptr::null_mut(),
+                    size: 0,
+                },
             },
             readpos: 0,
         });
@@ -93,7 +96,7 @@ impl<'a> RustKtxStream<'a> {
     pub fn ktx_stream(&self) -> *mut ktxStream {
         // SAFETY: Actually safe.
         //         The C API never mutates the inner pointer, just the pointed-to struct.
-        unsafe { std::mem::transmute::<_, _>(&*self.ktx_stream) }
+        unsafe { std::mem::transmute(&*self.ktx_stream) }
     }
 }
 
@@ -116,10 +119,11 @@ impl<'a> Debug for RustKtxStream<'a> {
     }
 }
 
-/// Get back a reference to the [`RWSeekable`] we (indirectly, through [`RWSeekableRef`] put in `ktxStream.data.mem`.  
+/// Get back a reference to the [`RWSeekable`] we (indirectly, through [`RWSeekableRef`]
+/// put in `ktxStream.data.custom_ptr.address`.
 /// SAFETY: UB if `str` is not actually a pointer to a [`RustKtxStream`].
 unsafe fn inner_rwseekable<'a>(str: *mut ktxStream) -> &'a mut dyn RWSeekable {
-    let ktx_mem = (*str).data.mem;
+    let ktx_mem = (*str).data.custom_ptr.address;
     let inner_ref = std::mem::transmute::<_, *mut RWSeekableRef<dyn RWSeekable + 'a>>(ktx_mem);
     &mut *((*inner_ref).ptr)
 }
