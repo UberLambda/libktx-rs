@@ -1,3 +1,4 @@
 [submodule "libktx-rs-sys/build/KTX-Software"]
 	path = libktx-rs-sys/build/KTX-Software
-	url = https://github.com/KhronosGroup/KTX-Software
+	url = https://github.com/UberLambda/KTX-Software
+	branch = public-stream

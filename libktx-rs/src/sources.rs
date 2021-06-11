@@ -177,7 +177,7 @@ impl<'a> TextureSource<'a> for StreamSource<'a> {
             let handle_ptr: *mut *mut sys::ktxTexture = &mut handle;
 
             let err = unsafe {
-                sys::ktxTexture_createFromStream(
+                sys::ktxTexture_CreateFromStream(
                     source.stream.ktx_stream(),
                     source.texture_create_flags.bits(),
                     handle_ptr,
