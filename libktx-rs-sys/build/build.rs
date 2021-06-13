@@ -12,6 +12,7 @@ use std::path::PathBuf;
 const SOURCE_DIR: &str = "build/KTX-Software";
 
 const INCLUDE_DIRS: &[&str] = &[
+    "build/",
     "build/KTX-Software/include",
     "build/KTX-Software/lib",
     "build/KTX-Software/lib/basisu/transcoder",
@@ -48,6 +49,11 @@ const C_SOURCE_FILES: &[&str] = &[
     // KTX_FEATURE_KTX1
     "lib/texture1.c",
     // KTX_FEATURE_VULKAN (?)
+    // KTX_FEATURE_WRITE
+    #[cfg(feature = "write")]
+    "lib/writer1.c",
+    #[cfg(feature = "write")]
+    "lib/writer2.c",
 ];
 
 const CXX_SOURCE_FILES: &[&str] = &[
@@ -84,7 +90,10 @@ fn configure_build(mut build: cc::Build) -> cc::Build {
         .define("BASISD_SUPPORT_KTX2_ZSTD", "0") // ZSTD support is added by libktx itself
         .define("KTX_FEATURE_KTX1", "1")
         .define("KTX_FEATURE_KTX2", "1")
-        .define("KTX_FEATURE_WRITE", "0")
+        .define(
+            "KTX_FEATURE_WRITE",
+            if cfg!(feature = "write") { "1" } else { "0" },
+        ) // For libktx_rs::sinks::
         .define("KTX_FEATURE_GL_UPLOAD", "0")
         .define("KTX_FEATURE_VULKAN", "0")
         .define("KTX_OMIT_VULKAN", "1");

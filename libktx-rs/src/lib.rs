@@ -10,5 +10,6 @@ pub use enums::*;
 pub mod texture;
 pub use texture::{Texture, TextureSource};
 
+#[cfg(feature = "write")]
 pub mod sinks;
 pub mod sources;

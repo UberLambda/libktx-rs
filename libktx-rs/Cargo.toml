@@ -11,9 +11,14 @@ license = "Apache-2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
+"default" = ["write"]
+
 # Enable tests that use the images in `libktx-rs-sys/build/KTX-Software/tests`.
 # Note that the KTX-Software submodule should be cloned with git-lfs!
 "test-images" = []
+
+# Support writing to KTXs as well?
+"write" = ["libktx-rs-sys/write"]
 
 [dependencies]
 libktx-rs-sys = { path = "../libktx-rs-sys", version = "0.1.0" }

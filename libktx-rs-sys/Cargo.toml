@@ -13,6 +13,8 @@ license = "Apache-2.0"
 build = "build/build.rs"
 
 [features]
+default = ["write"]
+
 # Link libstdc++. Required on Linux if using `CXX=g++`.
 # Alternatively, for full-LLVM builds (recommended):
 # 1. Set `CC=clang`, `CXX=clang++` to replace GCC with Clang
@@ -22,6 +24,9 @@ build = "build/build.rs"
 
 # Run bindgen as part of the build process?
 "run-bindgen" = ["bindgen"]
+
+# Support KTX_FEATURE_WRITE? (Writing to KTXs)
+"write" = []
 
 # Support software ETC unpacking?
 # >>> Enabling this feature makes a non-open-source file be compiled along with the library! <<<
