@@ -5,12 +5,14 @@
 name = "libktx-rs"
 version = "0.1.0"
 edition = "2018"
-authors = ["Paolo Jovon <paolo.jovon@gmail.com>"]
-license = "Apache-2.0"
 
 description = "Reading, writing and transcoding of Khronos Textures (KTX1 and KTX2)."
+repository = "https://github.com/UberLambda/libktx-rs"
+readme = "README.md"
 keywords = ["ktx", "texture", "image", "graphics", "bindings"]
 categories = ["api-bindings", "graphics"]
+authors = ["Paolo Jovon <paolo.jovon@gmail.com>"]
+license = "Apache-2.0"
 
 include = [
     "Cargo.toml",
