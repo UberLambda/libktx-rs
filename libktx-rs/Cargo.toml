@@ -8,18 +8,18 @@ edition = "2018"
 
 description = "Reading, writing and transcoding of Khronos Textures (KTX1 and KTX2)."
 repository = "https://github.com/UberLambda/libktx-rs"
-readme = "README.md"
+readme = "../README.md"
 keywords = ["ktx", "texture", "image", "graphics", "bindings"]
 categories = ["api-bindings", "graphics"]
 authors = ["Paolo Jovon <paolo.jovon@gmail.com>"]
 license = "Apache-2.0"
 
 include = [
-    "Cargo.toml",
-    "../.gitmodules",
-    "../README.md",
-    "../LICENSE",
-    "src/*.rs",
+    "/Cargo.toml",
+    "/../.gitmodules",
+    "/../README.md",
+    "/../LICENSE",
+    "/src/*.rs",
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

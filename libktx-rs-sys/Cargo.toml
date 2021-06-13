@@ -8,21 +8,27 @@ edition = "2018"
 
 description = "A low-level wrapper over https://github.com/KhronosGroup/KTX-Software."
 repository = "https://github.com/UberLambda/libktx-rs"
-readme = "README.md"
+readme = "../README.md"
 keywords = ["ktx", "texture", "image", "graphics", "bindings"]
 categories = ["external-ffi-bindings", "graphics"]
 authors = ["Paolo Jovon <paolo.jovon@gmail.com>"]
 license = "Apache-2.0"
 
 include = [
-    "Cargo.toml",
-    "../.gitmodules",
-    "../README.md",
-    "../LICENSE",
-    "src/*.rs",
-    "build/*.rs",
-    "build/*.c",
-    "build/*.h",
+    "/Cargo.toml",
+    "/../.gitmodules",
+    "/../README.md",
+    "/../LICENSE",
+    "/src/*.rs",
+    # Build script and wrapper
+    "/build/*.rs",
+    "/build/*.c",
+    "/build/*.h",
+    # KTX-Software submodule (only relevant files)
+    "/build/KTX-Software/lib/**",
+    "/build/KTX-Software/include/**",
+    "/build/KTX-Software/other_include/**",
+    "/build/KTX-Software/utils/**",
 ]
 build = "build/build.rs"
 links = "ktx"
