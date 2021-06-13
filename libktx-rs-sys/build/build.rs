@@ -139,6 +139,10 @@ fn ktx_sources<'a>(rel_paths: &'a [&'a str]) -> impl Iterator<Item = PathBuf> + 
 }
 
 fn main() {
+    // HACK to get proper relative paths
+    std::env::set_current_dir(std::env::var("CARGO_MANIFEST_DIR").unwrap())
+        .expect("Failed to chdir");
+
     println!("-- Build the native libKTX");
 
     configure_build(cc::Build::new())
