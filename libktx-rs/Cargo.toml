@@ -35,7 +35,7 @@ include = [
 "write" = ["libktx-rs-sys/write"]
 
 [dependencies]
-libktx-rs-sys = { path = "../libktx-rs-sys", version = "0.1.0" }
+libktx-rs-sys = { path = "../libktx-rs-sys", version = "0.1.40" }
 bitflags = "^1.2"
 log = { version = "^0.4" }
 
