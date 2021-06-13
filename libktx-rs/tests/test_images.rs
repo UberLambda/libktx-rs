@@ -7,10 +7,11 @@ mod test_images {
     use libktx_rs_macros::file_tests;
     use std::{
         fs::File,
+        path::PathBuf,
         sync::{Arc, Mutex},
     };
 
-    fn from_stream(file: File) {
+    fn from_stream(_path: PathBuf, file: File) {
         let stream = RustKtxStream::new(Box::new(file)).expect("the Rust ktxStream");
         let source = StreamSource::new(
             Arc::new(Mutex::new(stream)),

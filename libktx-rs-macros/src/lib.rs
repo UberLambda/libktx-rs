@@ -1,6 +1,9 @@
 // Copyright (C) 2021 Paolo Jovon <paolo.jovon@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
+//! Utilities for testing [`libktx_rs`].
+//! a library for reading, transcoding and writing [Khronos Textures (KTX)](https://www.khronos.org/ktx/).
+
 use glob::glob;
 use proc_macro::TokenStream;
 use proc_macro2::Span;
@@ -50,10 +53,13 @@ fn glob_all<'a>(patterns: impl Iterator<Item = &'a GlobPattern>) -> HashSet<std:
         .collect()
 }
 
+/// Collects a list of files at compile time (!), then generates a test case for each one of them.
+/// The test case will invoke a given function, passing it the [`std::path::PathBuf`] to it and the open [`std::fs::File`].
+///
 /// ```rust,ignore
 /// file_tests!(test_fn => "glob", !"glob", ...);
 /// ````
-/// For each file matching the given glob pattern[s] (at compile time!), generates a `#[test]` that invokes
+/// For each file matching the given glob pattern\[s\] (at compile time!), generates a `#[test]` that invokes
 /// ```rust,ignore
 /// fn test_fn(file: std::fs::File);
 /// ````
@@ -98,9 +104,9 @@ pub fn file_tests(input: TokenStream) -> TokenStream {
             #[test]
             fn #fn_ident() {
                 let path = std::path::PathBuf::from(#path_str);
-                println!(">>> Test file: {} <<<", #path_str);
-                match std::fs::File::open(path) {
-                    Ok(file) => #test_fn(file),
+                println!("Test file: {}", #path_str);
+                match std::fs::File::open(&path) {
+                    Ok(file) => #test_fn(path, file),
                     Err(err) => panic!("Error loading test file: {}: {}", #path_str, err),
                 }
             }
