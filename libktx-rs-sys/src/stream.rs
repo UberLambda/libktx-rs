@@ -10,9 +10,19 @@ use std::{
     marker::PhantomData,
 };
 
-pub trait RWSeekable: Read + Write + Seek {}
+pub trait RWSeekable: Read + Write + Seek {
+    /// Upcasts self to a `RWSeekable` reference.
+    ///
+    /// This is required for getting a fat pointer to `self` to be stored in the
+    /// C-managed [`ktxStream`].
+    fn as_mut_dyn(&mut self) -> &mut dyn RWSeekable;
+}
 
-impl<T: Read + Write + Seek> RWSeekable for T {}
+impl<T: Read + Write + Seek> RWSeekable for T {
+    fn as_mut_dyn(&mut self) -> &mut dyn RWSeekable {
+        self
+    }
+}
 
 impl<'a> Debug for dyn RWSeekable + 'a {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -20,58 +30,21 @@ impl<'a> Debug for dyn RWSeekable + 'a {
     }
 }
 
-/// A reference to a `RWSeekable`.
-///
-/// Pointers/references to Rust DSTs are "fat"; twice the size of a normal pointer (and possibly more in the future).  
-/// As such, **transmuting C pointers to Rust pointers is not generally possible**.  
-/// This struct fixes the problem by adding an extra layer of indirection:
-/// C pointer -> RWSeekableRef in the heap -> T: RWSeekable in the heap
-#[derive(Debug, Eq, PartialEq)]
-#[repr(transparent)]
-struct RWSeekableRef<'a, T: RWSeekable + ?Sized + 'a> {
-    ptr: *mut T,
-    phantom: PhantomData<&'a mut T>,
-}
-
-impl<'a, T: RWSeekable + ?Sized + 'a> RWSeekableRef<'a, T> {
-    fn new(inner: Box<T>) -> Self {
-        let ptr = Box::into_raw(inner);
-        RWSeekableRef {
-            ptr,
-            phantom: PhantomData,
-        }
-    }
-
-    fn into_inner(self) -> Option<Box<T>> {
-        // SAFETY: `self.ptr` should always have come from the `Box::into_raw()`
-        //         call in `new()`, so it should always be fine to reconstruct the box here.
-        if self.ptr.is_null() {
-            None
-        } else {
-            Some(unsafe { Box::from_raw(self.ptr) })
-        }
-    }
-}
-
-impl<'a, T: RWSeekable + ?Sized> Drop for RWSeekableRef<'a, T> {
-    fn drop(&mut self) {
-        // SAFETY: Reasonably safe. `self` is invalid anyways after a `drop`, so here be dragons.
-        let moved_self = std::mem::replace(self, unsafe { std::mem::zeroed() });
-        std::mem::drop(moved_self.into_inner());
-    }
-}
-
 #[allow(unused)]
 pub struct RustKtxStream<'a, T: RWSeekable + ?Sized + 'a> {
-    inner_ref: *mut RWSeekableRef<'a, T>,
-    ktx_stream: Box<ktxStream>,
+    inner_ptr: Option<*mut T>,
+    ktx_stream: Option<Box<ktxStream>>,
     ktx_phantom: PhantomData<&'a ktxStream>,
 }
 
 impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
     pub fn new(inner: Box<T>) -> Result<Self, ktx_error_code_e> {
-        let boxed_inner_ref = Box::new(RWSeekableRef::new(inner));
-        let inner_ref = Box::into_raw(boxed_inner_ref);
+        let inner_ptr = Box::into_raw(inner);
+        // SAFETY: Safe, we just destructed a Box
+        let inner_rwseekable_ptr = unsafe { (*inner_ptr).as_mut_dyn() } as *mut dyn RWSeekable;
+        // SAFETY: Here be (rustc-version-dependent) dragons
+        let (t_addr, vtable_addr): (*mut c_void, *mut c_void) =
+            unsafe { std::mem::transmute(inner_rwseekable_ptr) };
 
         let ktx_stream = Box::new(ktxStream {
             read: Some(ktxRustStream_read),
@@ -87,8 +60,8 @@ impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
             type_: streamType_eStreamTypeCustom,
             data: ktxStream__data {
                 custom_ptr: ktxStream__custom_ptr {
-                    address: inner_ref as *mut c_void,
-                    allocatorAddress: std::ptr::null_mut(),
+                    address: t_addr,
+                    allocatorAddress: vtable_addr,
                     size: 0,
                 },
             },
@@ -96,70 +69,105 @@ impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
         });
 
         Ok(Self {
-            inner_ref,
-            ktx_stream,
+            inner_ptr: Some(inner_ptr),
+            ktx_stream: Some(ktx_stream),
             ktx_phantom: PhantomData,
         })
     }
 
     pub fn ktx_stream(&self) -> *mut ktxStream {
-        unsafe { std::mem::transmute(&*self.ktx_stream) }
+        match &self.ktx_stream {
+            // SAFETY - Safe. Even if C wants a mutable pointer.
+            // This acts like a RefCell, where the normal interior mutability rules do not apply.
+            Some(boxed) => unsafe { std::mem::transmute(boxed.as_ref()) },
+            None => std::ptr::null_mut(),
+        }
     }
 
     pub fn inner(&self) -> &T {
-        // SAFETY: Safe if `inner_Ref` hasn't been dropped or otherwise tampered with
-        let inner_ref = unsafe { &*(self.inner_ref) };
-        unsafe { &*inner_ref.ptr }
+        // SAFETY: Safe if self has not been dropped
+        unsafe { &*self.inner_ptr.expect("Self was destroyed") as &T }
     }
 
-    pub fn inner_mut(&self) -> &mut T {
-        // SAFETY: Safe if `inner_Ref` hasn't been dropped or otherwise tampered with
-        let inner_ref = unsafe { &mut *(self.inner_ref) };
-        unsafe { &mut *inner_ref.ptr }
+    pub fn inner_mut(&mut self) -> &mut T {
+        // SAFETY: Safe if self has not been dropped
+        unsafe { &mut *self.inner_ptr.expect("Self was destroyed") as &mut T }
     }
 
-    pub fn into_inner(self) -> Box<T> {
-        // SAFETY: Safe as long as the C API didn't change our `data.custom_ptr` (it shouldn't ever happen)
-        let inner_ref = unsafe { Box::from_raw(self.inner_ref) };
-        inner_ref
-            .into_inner()
-            .expect("Null RustKtxStream::inner_ref.ptr - this should not be possible!")
+    /// Zero out [`self.inner_ptr`], and re-box it to where it was before `new()`.
+    fn rebox_inner_ptr(&mut self) -> Box<T> {
+        // SAFETY: Safe-ish - a zeroed-out pointer is a null pointer in all supported platforms
+        let moved_t = std::mem::replace(&mut self.inner_ptr, unsafe { std::mem::zeroed() });
+        unsafe {
+            // SAFETY: Safe - we're just reconstructing the box that was destructed in Self::new()
+            Box::from_raw(moved_t.expect("Self was already destroyed"))
+        }
+    }
+
+    pub fn into_inner(mut self) -> Box<T> {
+        self.rebox_inner_ptr()
     }
 }
 
 impl<'a, T: RWSeekable + ?Sized + 'a> Drop for RustKtxStream<'a, T> {
     fn drop(&mut self) {
-        // SAFETY: Safe as long as the C API didn't change our `data.custom_ptr` (it shouldn't ever happen)
-        let moved_self = std::mem::replace(
+        // Firstly, this swaps self with a dummy
+        let mut moved_self = std::mem::replace(
             self,
             RustKtxStream {
-                inner_ref: std::ptr::null_mut(),
+                inner_ptr: None,
+                ktx_stream: None,
                 ktx_phantom: PhantomData,
-                ktx_stream: self.ktx_stream.clone(),
             },
         );
-        let inner_ref = unsafe { Box::from_raw(moved_self.inner_ref) };
-        std::mem::drop(inner_ref.into_inner());
+
+        // This is to mark the C-land `ktxStream` as invalid, and then to deallocate it
+        if let Some(mut ktx_stream) = std::mem::replace(&mut moved_self.ktx_stream, None) {
+            ktx_stream.data.custom_ptr = ktxStream__custom_ptr {
+                address: std::ptr::null_mut(),
+                allocatorAddress: std::ptr::null_mut(),
+                size: 0xBADDA7A,
+            };
+            std::mem::drop(ktx_stream);
+        }
+        // The drop() of `ktx_stream` will do the rest
+
+        // This is to destroy inner if `into_inner()` hasn't been called yet
+        if let Some(_) = moved_self.inner_ptr {
+            std::mem::drop(moved_self.rebox_inner_ptr())
+        }
+
+        // Finally, this prevents a drop cycle - IMPORTANT!
+        // Note that we manually destroyed all fields above
+        std::mem::forget(moved_self);
+    }
+}
+
+fn format_option_ptr<T>(f: &mut std::fmt::Formatter<'_>, option: &Option<T>) -> std::fmt::Result {
+    match option {
+        Some(t) => write!(f, "{:p}", t),
+        None => write!(f, "<none>"),
     }
 }
 
 impl<'a, T: RWSeekable + ?Sized + 'a> Debug for RustKtxStream<'a, T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "RustKtxStream(inner={:?}, ktxStream={:p})",
-            self.inner_ref, self.ktx_stream
-        )
+        write!(f, "RustKtxStream(inner=")?;
+        format_option_ptr(f, &self.inner_ptr)?;
+        write!(f, ", ktxStream=")?;
+        format_option_ptr(f, &self.ktx_stream)?;
+        write!(f, ")")
     }
 }
 
-/// Get back a reference to the [`RWSeekable`] we (indirectly, through [`RWSeekableRef`]
-/// put in `ktxStream.data.custom_ptr.address`.
+/// Get back a reference to the [`RWSeekable`] we put in `ktxStream.data.custom_ptr`. on RustKtxStream construction.
 /// SAFETY: UB if `str` is not actually a pointer to a [`RustKtxStream`].
 unsafe fn inner_rwseekable<'a>(str: *mut ktxStream) -> &'a mut dyn RWSeekable {
-    let ktx_mem = (*str).data.custom_ptr.address;
-    let inner_ref = std::mem::transmute::<_, *mut RWSeekableRef<dyn RWSeekable + 'a>>(ktx_mem);
-    &mut *((*inner_ref).ptr)
+    let t_addr = (*str).data.custom_ptr.address;
+    let vtable_addr = (*str).data.custom_ptr.allocatorAddress;
+    let fat_t_ptr = (t_addr, vtable_addr);
+    let inner_ref: *mut dyn RWSeekable = std::mem::transmute(fat_t_ptr);
+    &mut *inner_ref
 }
 
 // Since `#[feature(seek_stream_len)]` is unstable...

@@ -27,7 +27,7 @@ mod write {
 
         // Rewind the stream
         {
-            let stream_lock = arc_stream.lock().expect("Poisoned stream lock");
+            let mut stream_lock = arc_stream.lock().expect("Poisoned stream lock");
             stream_lock
                 .inner_mut()
                 .seek(SeekFrom::Start(0))
