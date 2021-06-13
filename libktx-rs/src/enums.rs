@@ -116,6 +116,17 @@ impl From<SuperCompressionScheme> for u32 {
     }
 }
 
+impl From<u32> for SuperCompressionScheme {
+    fn from(scheme: u32) -> Self {
+        match scheme {
+            sys::ktxSupercmpScheme_KTX_SS_NONE => SuperCompressionScheme::None,
+            sys::ktxSupercmpScheme_KTX_SUPERCOMPRESSION_BASIS => SuperCompressionScheme::BasisLZ,
+            sys::ktxSupercmpScheme_KTX_SUPERCOMPRESSION_ZSTD => SuperCompressionScheme::ZStd,
+            other => SuperCompressionScheme::Vendor(other),
+        }
+    }
+}
+
 impl Display for SuperCompressionScheme {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         // SAFETY: Safe - this is a C switch/case under the hood, with invalid value checking

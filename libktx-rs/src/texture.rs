@@ -4,7 +4,7 @@
 //! Core types involving KTX [`Texture`]s.
 
 use crate::{
-    enums::{ktx_result, TranscodeFlags, TranscodeFormat},
+    enums::{ktx_result, SuperCompressionScheme, TranscodeFlags, TranscodeFormat},
     sys, KtxError,
 };
 use std::marker::PhantomData;
@@ -134,6 +134,40 @@ impl<'a, 'b: 'a> Ktx1<'a, 'b> {
         self.texture.handle as *mut sys::ktxTexture1
     }
 
+    /// Returns the OpenGL format of the texture's data (e.g. `GL_RGBA`).
+    ///
+    /// Also see [`Self::gl_internal_format`], [`Self::gl_base_internal_format`].
+    pub fn gl_format(&self) -> u32 {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).glFormat }
+    }
+
+    /// Returns the OpenGL format of the texture's data (e.g. `GL_RGBA`).
+    ///
+    /// Also see [`Self::gl_format`], [`Self::gl_base_internal_format`].
+    pub fn gl_internal_format(&self) -> u32 {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).glFormat }
+    }
+
+    /// Returns the OpenGL base internal format of the texture's data (e.g. `GL_RGBA`).
+    ///
+    /// Also see [`Self::gl_format`], [`Self::gl_internal_format`].
+    pub fn gl_base_internal_format(&self) -> u32 {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).glBaseInternalformat }
+    }
+
+    /// Returns the OpenGL datatype of the texture's data (e.g. `GL_UNSIGNED_BYTE`).
+    pub fn gl_type(&self) -> u32 {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).glType }
+    }
+
     /// Will this KTX1 need transcoding?
     pub fn needs_transcoding(&self) -> bool {
         // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
@@ -155,6 +189,48 @@ impl<'a, 'b: 'a> Ktx2<'a, 'b> {
     /// **SAFETY**: Pointers are harmless. Dereferencing them is not!
     pub fn handle(&self) -> *mut sys::ktxTexture2 {
         self.texture.handle as *mut sys::ktxTexture2
+    }
+
+    /// Returns the Vulkan format of the texture's data (e.g. `VK_R8G8B8A8_UNORM`).
+    pub fn vk_format(&self) -> u32 {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).vkFormat }
+    }
+
+    /// Returns the supercompression scheme in use for this texture's data.
+    pub fn supercompression_scheme(&self) -> SuperCompressionScheme {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).supercompressionScheme.into() }
+    }
+
+    /// Is this a video texture?
+    pub fn is_video(&self) -> bool {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).isVideo }
+    }
+
+    /// Returns the duration of the video texture (if [`Self::is_video`]).
+    pub fn duration(&self) -> u32 {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).duration }
+    }
+
+    /// Returns the timescale of the video texture (if [`Self::is_video`]).
+    pub fn timescale(&self) -> u32 {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).timescale }
+    }
+
+    /// Returns the loop count of the video texture (if [`Self::is_video`]).
+    pub fn loop_count(&self) -> u32 {
+        let handle = self.handle();
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX1
+        unsafe { (*handle).loopcount }
     }
 
     /// Will this KTX2 need transcoding?
