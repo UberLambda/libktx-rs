@@ -3,10 +3,26 @@
 
 [package]
 name = "libktx-rs-sys"
-version = "0.1.0"
+version = "0.1.40"
 edition = "2018"
+
 authors = ["Paolo Jovon <paolo.jovon@gmail.com>"]
+description = "A low-level wrapper over https://github.com/KhronosGroup/KTX-Software."
+repository = "https://github.com/UberLambda/libktx-rs"
+keywords = ["ktx", "texture", "image", "graphics", "bindings"]
+categories = ["external-ffi-bindings", "graphics"]
 license = "Apache-2.0"
+
+include = [
+    "Cargo.toml",
+    "../.gitmodules",
+    "../README.md",
+    "../LICENSE",
+    "src/*.rs",
+    "build/*.rs",
+    "build/*.c",
+    "build/*.h",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

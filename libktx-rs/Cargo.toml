@@ -8,6 +8,18 @@ edition = "2018"
 authors = ["Paolo Jovon <paolo.jovon@gmail.com>"]
 license = "Apache-2.0"
 
+description = "Reading, writing and transcoding of Khronos Textures (KTX1 and KTX2)."
+keywords = ["ktx", "texture", "image", "graphics", "bindings"]
+categories = ["api-bindings", "graphics"]
+
+include = [
+    "Cargo.toml",
+    "../.gitmodules",
+    "../README.md",
+    "../LICENSE",
+    "src/*.rs",
+]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]

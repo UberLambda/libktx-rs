@@ -5,8 +5,13 @@
 name = "libktx-rs-macros"
 version = "0.1.0"
 edition = "2018"
+
 authors = ["Paolo Jovon <paolo.jovon@gmail.com>"]
+description = "Utility macros for libktx_rs tests"
+repository = "https://github.com/UberLambda/libktx-rs"
 license = "Apache-2.0"
+
+publish = false
 
 [lib]
 proc-macro = true
