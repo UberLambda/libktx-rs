@@ -5,13 +5,15 @@
 //! a library for reading, transcoding and writing [Khronos Textures (KTX)](https://www.khronos.org/ktx/).
 
 pub use libktx_rs_sys as sys;
-pub use sys::stream::{RWSeekable, RustKtxStream};
 
 pub mod enums;
 pub use enums::*;
 
 pub mod texture;
 pub use texture::{Texture, TextureSource};
+
+pub mod stream;
+pub use stream::{RWSeekable, RustKtxStream};
 
 #[cfg(feature = "write")]
 pub mod sinks;

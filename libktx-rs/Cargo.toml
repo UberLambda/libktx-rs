@@ -37,6 +37,7 @@ include = [
 [dependencies]
 libktx-rs-sys = { path = "../libktx-rs-sys", version = "0.1.0" }
 bitflags = "^1.2"
+log = { version = "^0.4" }
 
 [dev-dependencies]
 libktx-rs-macros = { path = "../libktx-rs-macros", version = "0.1.0" }

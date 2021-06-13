@@ -5,10 +5,8 @@
 
 use crate::{
     enums::{CreateStorage, TextureCreateFlags},
-    sys::{
-        self,
-        stream::{RWSeekable, RustKtxStream},
-    },
+    stream::{RWSeekable, RustKtxStream},
+    sys::{self},
     texture::{Texture, TextureSource},
     KtxError,
 };

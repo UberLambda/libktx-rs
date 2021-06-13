@@ -6,7 +6,7 @@
 
 use crate::{
     enums::ktx_result,
-    sys::stream::{RWSeekable, RustKtxStream},
+    stream::{RWSeekable, RustKtxStream},
     texture::{Texture, TextureSink},
     KtxError,
 };

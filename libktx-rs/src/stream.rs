@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Paolo Jovon <paolo.jovon@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::*;
+use crate::sys::*;
 use log;
 use std::{
     ffi::c_void,
