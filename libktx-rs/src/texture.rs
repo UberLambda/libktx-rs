@@ -2,21 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    enums::{TranscodeFlags, TranscodeFormat},
+    enums::{ktx_result, TranscodeFlags, TranscodeFormat},
     sys, KtxError,
 };
-use std::{convert::TryFrom, marker::PhantomData};
-
-fn ktx_result<T>(errcode: sys::ktx_error_code_e, ok: T) -> Result<T, KtxError> {
-    if errcode == sys::ktx_error_code_e_KTX_SUCCESS {
-        Ok(ok)
-    } else {
-        Err(KtxError::try_from(errcode as u32).unwrap_or(KtxError::InvalidValue))
-    }
-}
-
+use std::marker::PhantomData;
 pub trait TextureSource<'a> {
     fn create_texture(self) -> Result<Texture<'a>, KtxError>;
+}
+
+pub trait TextureSink {
+    fn write_texture(&mut self, texture: &Texture) -> Result<(), KtxError>;
 }
 
 pub struct Texture<'a> {
@@ -74,6 +69,11 @@ impl<'a> Texture<'a> {
     pub fn element_size(&self) -> usize {
         // SAFETY: Safe if `self.handle` is sane.
         unsafe { sys::ktxTexture_GetElementSize(self.handle) as usize }
+    }
+
+    /// Writes the texture to the given sink in its native format (KTX1 or KTX2).
+    pub fn write_to<T: TextureSink>(&self, sink: &mut T) -> Result<(), KtxError> {
+        sink.write_texture(self)
     }
 
     /// If this [`Texture`] really is a KTX1, returns KTX1-specific functionalities for it.

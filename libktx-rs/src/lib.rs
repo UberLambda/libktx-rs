@@ -10,4 +10,5 @@ pub use enums::*;
 pub mod texture;
 pub use texture::{Texture, TextureSource};
 
+pub mod sinks;
 pub mod sources;

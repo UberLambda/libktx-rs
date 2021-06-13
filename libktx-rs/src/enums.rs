@@ -75,6 +75,14 @@ impl Display for KtxError {
 
 impl Error for KtxError {}
 
+pub(crate) fn ktx_result<T>(errcode: sys::ktx_error_code_e, ok: T) -> Result<T, KtxError> {
+    if errcode == sys::ktx_error_code_e_KTX_SUCCESS {
+        Ok(ok)
+    } else {
+        Err(KtxError::try_from(errcode as u32).unwrap_or(KtxError::InvalidValue))
+    }
+}
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum SuperCompressionScheme {
     None,
