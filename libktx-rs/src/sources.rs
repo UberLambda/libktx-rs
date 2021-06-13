@@ -3,11 +3,18 @@
 
 use crate::{
     enums::{CreateStorage, TextureCreateFlags},
-    sys::{self, stream::RustKtxStream},
+    sys::{
+        self,
+        stream::{RWSeekable, RustKtxStream},
+    },
     texture::{Texture, TextureSource},
     KtxError,
 };
-use std::{convert::TryInto, marker::PhantomData};
+use std::{
+    convert::TryInto,
+    marker::PhantomData,
+    sync::{Arc, Mutex},
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CommonCreateInfo {
@@ -165,12 +172,28 @@ impl<'a> TextureSource<'a> for Ktx2CreateInfo {
 }
 
 #[derive(Debug)]
-pub struct StreamSource<'a> {
-    pub stream: RustKtxStream<'a>,
-    pub texture_create_flags: TextureCreateFlags,
+pub struct StreamSource<'a, T: RWSeekable + ?Sized + 'a> {
+    stream: Arc<Mutex<RustKtxStream<'a, T>>>,
+    texture_create_flags: TextureCreateFlags,
 }
 
-impl<'a> TextureSource<'a> for StreamSource<'a> {
+impl<'a, T: RWSeekable + ?Sized + 'a> StreamSource<'a, T> {
+    pub fn new(
+        inner: Arc<Mutex<RustKtxStream<'a, T>>>,
+        texture_create_flags: TextureCreateFlags,
+    ) -> Self {
+        StreamSource {
+            stream: inner,
+            texture_create_flags,
+        }
+    }
+
+    pub fn into_inner(self) -> Arc<Mutex<RustKtxStream<'a, T>>> {
+        self.stream
+    }
+}
+
+impl<'a, T: RWSeekable + ?Sized + 'a> TextureSource<'a> for StreamSource<'a, T> {
     fn create_texture(self) -> Result<Texture<'a>, KtxError> {
         try_create_texture(self, |source| {
             let mut handle: *mut sys::ktxTexture = std::ptr::null_mut();
@@ -178,7 +201,11 @@ impl<'a> TextureSource<'a> for StreamSource<'a> {
 
             let err = unsafe {
                 sys::ktxTexture_CreateFromStream(
-                    source.stream.ktx_stream(),
+                    source
+                        .stream
+                        .lock()
+                        .expect("Inner stream is poisoned")
+                        .ktx_stream(),
                     source.texture_create_flags.bits(),
                     handle_ptr,
                 )

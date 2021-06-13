@@ -1,19 +1,31 @@
 // Copyright (C) 2021 Paolo Jovon <paolo.jovon@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
+#![cfg(feature = "write")]
 
 use crate::{
     enums::ktx_result,
-    sys::stream::RustKtxStream,
+    sys::stream::{RWSeekable, RustKtxStream},
     texture::{Texture, TextureSink},
     KtxError,
 };
+use std::sync::{Arc, Mutex};
 
 #[derive(Debug)]
-pub struct StreamSink<'a> {
-    pub sink: RustKtxStream<'a>,
+pub struct StreamSink<'a, T: RWSeekable + ?Sized + 'a> {
+    stream: Arc<Mutex<RustKtxStream<'a, T>>>,
 }
 
-impl<'a> TextureSink for StreamSink<'a> {
+impl<'a, T: RWSeekable + ?Sized + 'a> StreamSink<'a, T> {
+    pub fn new(inner: Arc<Mutex<RustKtxStream<'a, T>>>) -> Self {
+        StreamSink { stream: inner }
+    }
+
+    pub fn into_inner(self) -> Arc<Mutex<RustKtxStream<'a, T>>> {
+        self.stream
+    }
+}
+
+impl<'a, T: RWSeekable + ?Sized + 'a> TextureSink for StreamSink<'a, T> {
     fn write_texture(&mut self, texture: &Texture) -> Result<(), KtxError> {
         // SAFETY: Safe if `texture.handle` is sound.
         let vtbl = unsafe { (*texture.handle).vtbl };
@@ -21,7 +33,15 @@ impl<'a> TextureSink for StreamSink<'a> {
             Some(pfn) => pfn,
             None => return Err(KtxError::InvalidValue),
         };
-        let err = unsafe { write_pfn(texture.handle, self.sink.ktx_stream()) };
+        let err = unsafe {
+            write_pfn(
+                texture.handle,
+                self.stream
+                    .lock()
+                    .expect("Poisoned self.stream lock")
+                    .ktx_stream(),
+            )
+        };
         ktx_result(err, ())
     }
 }

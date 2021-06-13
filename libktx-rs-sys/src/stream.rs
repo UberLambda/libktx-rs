@@ -41,26 +41,35 @@ impl<'a, T: RWSeekable + ?Sized + 'a> RWSeekableRef<'a, T> {
             phantom: PhantomData,
         }
     }
+
+    fn into_inner(self) -> Option<Box<T>> {
+        // SAFETY: `self.ptr` should always have come from the `Box::into_raw()`
+        //         call in `new()`, so it should always be fine to reconstruct the box here.
+        if self.ptr.is_null() {
+            None
+        } else {
+            Some(unsafe { Box::from_raw(self.ptr) })
+        }
+    }
 }
 
 impl<'a, T: RWSeekable + ?Sized> Drop for RWSeekableRef<'a, T> {
     fn drop(&mut self) {
-        // SAFETY: `self.ptr` should always have come from the `Box::into_raw()`
-        //         call in `new()`, so it should always be fine to reconstruct the box here.
-        let inner = unsafe { Box::from_raw(self.ptr) };
-        std::mem::drop(inner)
+        // SAFETY: Reasonably safe. `self` is invalid anyways after a `drop`, so here be dragons.
+        let moved_self = std::mem::replace(self, unsafe { std::mem::zeroed() });
+        std::mem::drop(moved_self.into_inner());
     }
 }
 
 #[allow(unused)]
-pub struct RustKtxStream<'a> {
-    inner_ref: *mut RWSeekableRef<'a, dyn RWSeekable + 'a>,
+pub struct RustKtxStream<'a, T: RWSeekable + ?Sized + 'a> {
+    inner_ref: *mut RWSeekableRef<'a, T>,
     ktx_stream: Box<ktxStream>,
     ktx_phantom: PhantomData<&'a ktxStream>,
 }
 
-impl<'a> RustKtxStream<'a> {
-    pub fn new(inner: Box<dyn RWSeekable + 'a>) -> Result<Self, ktx_error_code_e> {
+impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
+    pub fn new(inner: Box<T>) -> Result<Self, ktx_error_code_e> {
         let boxed_inner_ref = Box::new(RWSeekableRef::new(inner));
         let inner_ref = Box::into_raw(boxed_inner_ref);
 
@@ -94,22 +103,47 @@ impl<'a> RustKtxStream<'a> {
     }
 
     pub fn ktx_stream(&self) -> *mut ktxStream {
-        // SAFETY: Actually safe.
-        //         The C API never mutates the inner pointer, just the pointed-to struct.
         unsafe { std::mem::transmute(&*self.ktx_stream) }
     }
-}
 
-impl<'a> Drop for RustKtxStream<'a> {
-    fn drop(&mut self) {
-        // SAFETY: `self.inner_ref` should always have come from the `Box::into_raw()`
-        //         call in `new()`, so it should always be fine to reconstruct the box here.
+    pub fn inner(&self) -> &T {
+        // SAFETY: Safe if `inner_Ref` hasn't been dropped or otherwise tampered with
+        let inner_ref = unsafe { &*(self.inner_ref) };
+        unsafe { &*inner_ref.ptr }
+    }
+
+    pub fn inner_mut(&self) -> &mut T {
+        // SAFETY: Safe if `inner_Ref` hasn't been dropped or otherwise tampered with
+        let inner_ref = unsafe { &mut *(self.inner_ref) };
+        unsafe { &mut *inner_ref.ptr }
+    }
+
+    pub fn into_inner(self) -> Box<T> {
+        // SAFETY: Safe as long as the C API didn't change our `data.custom_ptr` (it shouldn't ever happen)
         let inner_ref = unsafe { Box::from_raw(self.inner_ref) };
-        std::mem::drop(inner_ref)
+        inner_ref
+            .into_inner()
+            .expect("Null RustKtxStream::inner_ref.ptr - this should not be possible!")
     }
 }
 
-impl<'a> Debug for RustKtxStream<'a> {
+impl<'a, T: RWSeekable + ?Sized + 'a> Drop for RustKtxStream<'a, T> {
+    fn drop(&mut self) {
+        // SAFETY: Safe as long as the C API didn't change our `data.custom_ptr` (it shouldn't ever happen)
+        let moved_self = std::mem::replace(
+            self,
+            RustKtxStream {
+                inner_ref: std::ptr::null_mut(),
+                ktx_phantom: PhantomData,
+                ktx_stream: self.ktx_stream.clone(),
+            },
+        );
+        let inner_ref = unsafe { Box::from_raw(moved_self.inner_ref) };
+        std::mem::drop(inner_ref.into_inner());
+    }
+}
+
+impl<'a, T: RWSeekable + ?Sized + 'a> Debug for RustKtxStream<'a, T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

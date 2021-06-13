@@ -5,14 +5,17 @@
 mod test_images {
     use libktx_rs::{sources::StreamSource, RustKtxStream, Texture, TextureCreateFlags};
     use libktx_rs_macros::file_tests;
-    use std::fs::File;
+    use std::{
+        fs::File,
+        sync::{Arc, Mutex},
+    };
 
     fn from_stream(file: File) {
         let stream = RustKtxStream::new(Box::new(file)).expect("the Rust ktxStream");
-        let source = StreamSource {
-            stream,
-            texture_create_flags: TextureCreateFlags::LOAD_IMAGE_DATA,
-        };
+        let source = StreamSource::new(
+            Arc::new(Mutex::new(stream)),
+            TextureCreateFlags::LOAD_IMAGE_DATA,
+        );
         let mut stream_texture = Texture::new(source).expect("the loaded KTX");
 
         if let Some(_) = stream_texture.ktx1() {

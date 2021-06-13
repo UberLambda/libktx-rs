@@ -10,6 +10,7 @@ pub trait TextureSource<'a> {
     fn create_texture(self) -> Result<Texture<'a>, KtxError>;
 }
 
+#[cfg(feature = "write")]
 pub trait TextureSink {
     fn write_texture(&mut self, texture: &Texture) -> Result<(), KtxError>;
 }
@@ -72,6 +73,7 @@ impl<'a> Texture<'a> {
     }
 
     /// Writes the texture to the given sink in its native format (KTX1 or KTX2).
+    #[cfg(feature = "write")]
     pub fn write_to<T: TextureSink>(&self, sink: &mut T) -> Result<(), KtxError> {
         sink.write_texture(self)
     }
