@@ -175,6 +175,14 @@ fn main() {
             .allowlist_type(r"[Kk][Tt][Xx].*")
             .allowlist_var(r"[Kk][Tt][Xx].*")
             //
+            .blocklist_type("ktx_size_t")
+            .raw_line("pub type ktx_size_t = usize;")
+            .blocklist_type("ktx_off_t")
+            .raw_line("#[cfg(target_os = \"windows\")]")
+            .raw_line("pub type ktx_off_t = i64;")
+            .raw_line("#[cfg(not(target_os = \"windows\"))]")
+            .raw_line("pub type ktx_off_t = isize;")
+            //
             .clang_arg("-fparse-all-comments")
             .clang_args(INCLUDE_DIRS.iter().map(|id| format!("-I{}", id)))
             .generate()
