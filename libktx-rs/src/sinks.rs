@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #![cfg(feature = "write")]
 
+//! [`texture::TextureSink`] implementations for writing [`Texture`]s out to.
+
 use crate::{
     enums::ktx_result,
     sys::stream::{RWSeekable, RustKtxStream},
@@ -10,16 +12,19 @@ use crate::{
 };
 use std::sync::{Arc, Mutex};
 
+/// A [`TextureSink`] that writes to a [`RustKtxStream`].
 #[derive(Debug)]
 pub struct StreamSink<'a, T: RWSeekable + ?Sized + 'a> {
     stream: Arc<Mutex<RustKtxStream<'a, T>>>,
 }
 
 impl<'a, T: RWSeekable + ?Sized + 'a> StreamSink<'a, T> {
+    /// Creates a new stream sink that will write to the given `inner` stream.
     pub fn new(inner: Arc<Mutex<RustKtxStream<'a, T>>>) -> Self {
         StreamSink { stream: inner }
     }
 
+    /// Destroys this stream sink, giving back the underlying `inner` stream.
     pub fn into_inner(self) -> Arc<Mutex<RustKtxStream<'a, T>>> {
         self.stream
     }

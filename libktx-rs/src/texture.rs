@@ -6,15 +6,23 @@ use crate::{
     sys, KtxError,
 };
 use std::marker::PhantomData;
+
+/// A source of [`Texture`]s.
 pub trait TextureSource<'a> {
+    /// Attempts to create a new texture by consuming `self`.  
     fn create_texture(self) -> Result<Texture<'a>, KtxError>;
 }
 
+/// A sink of [`Texture`]s, e.g. something they can be written to.
 #[cfg(feature = "write")]
 pub trait TextureSink {
+    /// Attempts to write `texture` to `self`.
     fn write_texture(&mut self, texture: &Texture) -> Result<(), KtxError>;
 }
 
+/// A KTX (1 or 2) texture.
+///
+/// This wraps both a [`sys::ktxTexture`] handle, and the [`TextureSource`] it was created from.
 pub struct Texture<'a> {
     // Not actually dead - there most likely are raw pointers referencing this!!
     #[allow(dead_code)]
@@ -24,6 +32,7 @@ pub struct Texture<'a> {
 }
 
 impl<'a> Texture<'a> {
+    /// Attempts to create a new texture, consuming the given [`TextureSource`].
     pub fn new<S>(source: S) -> Result<Self, KtxError>
     where
         S: TextureSource<'a>,
@@ -72,7 +81,7 @@ impl<'a> Texture<'a> {
         unsafe { sys::ktxTexture_GetElementSize(self.handle) as usize }
     }
 
-    /// Writes the texture to the given sink in its native format (KTX1 or KTX2).
+    /// Attempts to write the texture (in its native format, either KTX1 or KTX2) to `sink`.
     #[cfg(feature = "write")]
     pub fn write_to<T: TextureSink>(&self, sink: &mut T) -> Result<(), KtxError> {
         sink.write_texture(self)
@@ -110,6 +119,7 @@ impl<'a> Drop for Texture<'a> {
     }
 }
 
+/// KTX1-specific [`Texture`] functionality.
 pub struct Ktx1<'a, 'b: 'a> {
     texture: &'a mut Texture<'b>,
 }
@@ -132,6 +142,7 @@ impl<'a, 'b: 'a> Ktx1<'a, 'b> {
     //       Probably needs a TextureSink trait
 }
 
+/// KTX2-specific [`Texture`] functionality.
 pub struct Ktx2<'a, 'b: 'a> {
     texture: &'a mut Texture<'b>,
 }

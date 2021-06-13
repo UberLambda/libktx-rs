@@ -1,6 +1,8 @@
 // Copyright (C) 2021 Paolo Jovon <paolo.jovon@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
+//! Wrappers for the underlying C library's enum types.
+
 use crate::sys;
 use bitflags::bitflags;
 use std::{
