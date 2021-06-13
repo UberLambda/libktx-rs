@@ -109,18 +109,18 @@ fn configure_build(mut build: cc::Build) -> cc::Build {
 
     let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
     let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap();
-    match (target_os.as_str(), target_arch.as_str()) {
-        ("windows", _) => {
+    match target_os.as_str() {
+        "windows" => {
             build
                 .file("lib/internalexport.def")
                 .file("lib/internalexport_write.def")
                 .define("KTX_API", "__declspec(dllexport)")
                 .define("BASISU_NO_ITERATOR_DEBUG_LEVEL", "1");
         }
-        ("linux", _) => {
+        "linux" => {
             build.flag("-pthread").flag("-ldl");
         }
-        (_, "wasm32" | "wasm64") => {
+        _ if target_arch.starts_with("wasm") => {
             build
                 .define("BASISD_SUPPORT_ATC", "0")
                 .define("BASISD_SUPPORT_PVRTC2", "0")
