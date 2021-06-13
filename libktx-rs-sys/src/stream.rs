@@ -10,6 +10,7 @@ use std::{
     marker::PhantomData,
 };
 
+/// Represents a Rust byte stream, i.e. something [`Read`], [`Write`] and [`Seek`].
 pub trait RWSeekable: Read + Write + Seek {
     /// Upcasts self to a `RWSeekable` reference.
     ///
@@ -30,6 +31,7 @@ impl<'a> Debug for dyn RWSeekable + 'a {
     }
 }
 
+/// A Rust-based `ktxStream`, for reading from / writing to [`RWSeekable`]s.
 #[allow(unused)]
 pub struct RustKtxStream<'a, T: RWSeekable + ?Sized + 'a> {
     inner_ptr: Option<*mut T>,
@@ -38,6 +40,7 @@ pub struct RustKtxStream<'a, T: RWSeekable + ?Sized + 'a> {
 }
 
 impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
+    /// Attempts to create a new Rust-based `ktxStream`, wrapping the given `inner` [`RWSeekable`].
     pub fn new(inner: Box<T>) -> Result<Self, ktx_error_code_e> {
         let inner_ptr = Box::into_raw(inner);
         // SAFETY: Safe, we just destructed a Box
@@ -75,6 +78,11 @@ impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
         })
     }
 
+    /// Returns a handle to the underlying [`ktxStream`].
+    ///
+    /// ## Safety
+    /// The returned handle is only for interaction with the C API.
+    /// Do not modify this in any way if not absolutely necessary!
     pub fn ktx_stream(&self) -> *mut ktxStream {
         match &self.ktx_stream {
             // SAFETY - Safe. Even if C wants a mutable pointer.
@@ -84,11 +92,13 @@ impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
         }
     }
 
+    /// Returns a reference to the inner [`RWSeekable`].
     pub fn inner(&self) -> &T {
         // SAFETY: Safe if self has not been dropped
         unsafe { &*self.inner_ptr.expect("Self was destroyed") as &T }
     }
 
+    /// Returns a mutable reference to the inner [`RWSeekable`].
     pub fn inner_mut(&mut self) -> &mut T {
         // SAFETY: Safe if self has not been dropped
         unsafe { &mut *self.inner_ptr.expect("Self was destroyed") as &mut T }
@@ -104,6 +114,7 @@ impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
         }
     }
 
+    /// Destroys self, giving back the boxed [`RWSeekable`] that was passed to [`Self::new`].
     pub fn into_inner(mut self) -> Box<T> {
         self.rebox_inner_ptr()
     }
