@@ -1,6 +1,11 @@
 // Copyright (C) 2021 Paolo Jovon <paolo.jovon@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
+//! A low-level Rust wrapper over [KhronosGroup/KTX-Software](https://github.com/KhronosGroup/KTXSoftware),
+//! a library for reading, transcoding and writing [Khronos Textures (KTX)](https://www.khronos.org/ktx/).
+//!
+//! You very likely want to use the high-level wrapper, [`libktx_rs`] instead of this crate!
+
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]

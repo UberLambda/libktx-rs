@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Paolo Jovon <paolo.jovon@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-//! [`texture::TextureSource`] implementations for reading (or creating) [`Texture`]s from.
+//! [`crate::texture::TextureSource`] implementations for reading (or creating) [`Texture`]s from.
 
 use crate::{
     enums::{CreateStorage, TextureCreateFlags},
@@ -50,8 +50,8 @@ impl Default for CommonCreateInfo {
     }
 }
 
-/// [`Texture`] creation info for KTX1 textures ([`texture::Ktx1`]).  
-/// This is also a [`texture::TextureSource`], which creates a new KTX1 texture according to `self`.
+/// [`Texture`] creation info for KTX1 textures ([`crate::texture::Ktx1`]).  
+/// This is also a [`TextureSource`], which creates a new KTX1 texture according to `self`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Ktx1CreateInfo {
     pub gl_internal_format: u32,
@@ -117,8 +117,8 @@ impl<'a> TextureSource<'a> for Ktx1CreateInfo {
     }
 }
 
-/// [`Texture`] creation info for KTX2 textures ([`texture::Ktx2`]).  
-/// This is also a [`texture::TextureSource`], which creates a new KTX2 texture according to `self`.
+/// [`Texture`] creation info for KTX2 textures ([`crate::texture::Ktx2`]).  
+/// This is also a [`TextureSource`], which creates a new KTX2 texture according to `self`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Ktx2CreateInfo {
     pub vk_format: u32,
@@ -178,7 +178,7 @@ impl<'a> TextureSource<'a> for Ktx2CreateInfo {
     }
 }
 
-/// [`texture::TextureSource`] for reading a texture from a [`RustKtxStream`].
+/// [`TextureSource`] for reading a texture from a [`RustKtxStream`].
 #[derive(Debug)]
 pub struct StreamSource<'a, T: RWSeekable + ?Sized + 'a> {
     stream: Arc<Mutex<RustKtxStream<'a, T>>>,

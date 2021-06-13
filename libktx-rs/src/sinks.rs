@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #![cfg(feature = "write")]
 
-//! [`texture::TextureSink`] implementations for writing [`Texture`]s out to.
+//! [`crate::texture::TextureSink`] implementations for writing [`Texture`]s out to.
 
 use crate::{
     enums::ktx_result,

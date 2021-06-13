@@ -1,6 +1,8 @@
 // Copyright (C) 2021 Paolo Jovon <paolo.jovon@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
+//! Core types involving KTX [`Texture`]s.
+
 use crate::{
     enums::{ktx_result, TranscodeFlags, TranscodeFormat},
     sys, KtxError,
@@ -195,8 +197,8 @@ impl<'a, 'b: 'a> Ktx2<'a, 'b> {
 
     /// Returns the number of components of the KTX2, also considering compression.  
     ///
-    /// **This may differ from values returned by [`component_info`]:**
-    /// - For uncompressed formats: this is the number of image components, as from [`component_info`].
+    /// **This may differ from values returned by [`Self::component_info`]:**
+    /// - For uncompressed formats: this is the number of image components, as from [`Self::component_info`].
     /// - For block-compressed formats: 1 or 2, according to the DFD color model.
     /// - For Basis Universal-compressed textures: obtained by parsing channel IDs before any encoding and deflation.
     ///

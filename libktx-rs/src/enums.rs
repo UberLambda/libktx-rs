@@ -88,7 +88,7 @@ pub(crate) fn ktx_result<T>(errcode: sys::ktx_error_code_e, ok: T) -> Result<T, 
     }
 }
 
-/// The supercompression scheme for a [`Texture`].
+/// The supercompression scheme for a [`crate::Texture`].
 ///
 /// See [`sys::ktxSupercmpScheme`].
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -127,7 +127,7 @@ impl Display for SuperCompressionScheme {
     }
 }
 
-/// [`Texture`] storage creation flags.
+/// [`crate::Texture`] storage creation flags.
 ///
 /// See [`sys::ktxTextureCreateStorageEnum`].
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -138,7 +138,7 @@ pub enum CreateStorage {
 }
 
 bitflags! {
-    /// [`Texture`] creation flags.
+    /// [`crate::Texture`] creation flags.
     ///
     /// See [`sys::ktxTextureCreateFlags`].
     #[derive(Default)]
@@ -165,7 +165,7 @@ bitflags! {
 }
 }
 
-/// The destination format for transcoding a [`texture::Ktx2`] via Basis Universal.
+/// The destination format for transcoding a [`crate::texture::Ktx2`] via Basis Universal.
 ///
 /// See [`sys::ktx_transcode_fmt_e`].
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -244,7 +244,7 @@ impl TryFrom<u32> for TranscodeFormat {
 }
 
 bitflags! {
-    /// Flags applied when transcoding a [`texture::Ktx2`] via Basis Universal.
+    /// Flags applied when transcoding a [`crate::texture::Ktx2`] via Basis Universal.
     ///
     /// See [`sys::ktx_transcode_flags`].
     #[derive(Default)]
