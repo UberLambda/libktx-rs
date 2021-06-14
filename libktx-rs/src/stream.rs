@@ -49,7 +49,7 @@ impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
         let (t_addr, vtable_addr): (*mut c_void, *mut c_void) =
             unsafe { std::mem::transmute(inner_rwseekable_ptr) };
 
-        let ktx_stream = Box::new(ktxStream {
+        let mut ktx_stream = Box::new(ktxStream {
             read: Some(ktxRustStream_read),
             skip: Some(ktxRustStream_skip),
             write: Some(ktxRustStream_write),
@@ -61,15 +61,13 @@ impl<'a, T: RWSeekable + ?Sized + 'a> RustKtxStream<'a, T> {
             closeOnDestruct: false,
             // SAFETY: This should be safe. The C API only sees an opaque handle at the end of the day.
             type_: streamType_eStreamTypeCustom,
-            data: ktxStream__data {
-                custom_ptr: ktxStream__custom_ptr {
-                    address: t_addr,
-                    allocatorAddress: vtable_addr,
-                    size: 0,
-                },
-            },
+            data: unsafe { std::mem::zeroed() },
             readpos: 0,
         });
+        let custom_ptr = unsafe { ktx_stream.data.custom_ptr.as_mut() };
+        custom_ptr.address = t_addr;
+        custom_ptr.allocatorAddress = vtable_addr;
+        custom_ptr.size = 0;
 
         Ok(Self {
             inner_ptr: Some(inner_ptr),
@@ -134,11 +132,10 @@ impl<'a, T: RWSeekable + ?Sized + 'a> Drop for RustKtxStream<'a, T> {
 
         // This is to mark the C-land `ktxStream` as invalid, and then to deallocate it
         if let Some(mut ktx_stream) = std::mem::replace(&mut moved_self.ktx_stream, None) {
-            ktx_stream.data.custom_ptr = ktxStream__custom_ptr {
-                address: std::ptr::null_mut(),
-                allocatorAddress: std::ptr::null_mut(),
-                size: 0xBADDA7A,
-            };
+            let mut custom_ptr = unsafe { ktx_stream.data.custom_ptr.as_mut() };
+            custom_ptr.address = std::ptr::null_mut();
+            custom_ptr.allocatorAddress = std::ptr::null_mut();
+            custom_ptr.size = 0xBADDA7A;
             std::mem::drop(ktx_stream);
         }
         // The drop() of `ktx_stream` will do the rest
@@ -174,9 +171,10 @@ impl<'a, T: RWSeekable + ?Sized + 'a> Debug for RustKtxStream<'a, T> {
 /// Get back a reference to the [`RWSeekable`] we put in `ktxStream.data.custom_ptr`. on RustKtxStream construction.
 /// SAFETY: UB if `str` is not actually a pointer to a [`RustKtxStream`].
 unsafe fn inner_rwseekable<'a>(str: *mut ktxStream) -> &'a mut dyn RWSeekable {
-    let t_addr = (*str).data.custom_ptr.address;
-    let vtable_addr = (*str).data.custom_ptr.allocatorAddress;
-    let fat_t_ptr = (t_addr, vtable_addr);
+    let fat_t_ptr = {
+        let custom_ptr = (*str).data.custom_ptr.as_ref();
+        (custom_ptr.address, custom_ptr.allocatorAddress)
+    };
     let inner_ref: *mut dyn RWSeekable = std::mem::transmute(fat_t_ptr);
     &mut *inner_ref
 }

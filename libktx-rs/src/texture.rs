@@ -92,7 +92,7 @@ impl<'a> Texture<'a> {
     /// If this [`Texture`] really is a KTX1, returns KTX1-specific functionalities for it.
     pub fn ktx1<'b>(&'b mut self) -> Option<Ktx1<'b, 'a>> {
         // SAFETY: Safe if `self.handle` is sane.
-        if unsafe { *self.handle }.classId == sys::class_id_ktxTexture1_c {
+        if unsafe { &*self.handle }.classId == sys::class_id_ktxTexture1_c {
             Some(Ktx1 { texture: self })
         } else {
             None
@@ -102,7 +102,7 @@ impl<'a> Texture<'a> {
     /// If this [`Texture`] really is a KTX2, returns KTX2-specific functionalities for it.
     pub fn ktx2<'b>(&'b mut self) -> Option<Ktx2<'b, 'a>> {
         // SAFETY: Safe if `self.handle` is sane.
-        if unsafe { *self.handle }.classId == sys::class_id_ktxTexture2_c {
+        if unsafe { &*self.handle }.classId == sys::class_id_ktxTexture2_c {
             Some(Ktx2 { texture: self })
         } else {
             None

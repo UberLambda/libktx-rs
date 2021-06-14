@@ -17,4 +17,4 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 include!("ffi.rs");
 
 pub type ktxStream__data = ktxStream__bindgen_ty_1;
-pub type ktxStream__custom_ptr = ktxStream__bindgen_ty_1__bindgen_ty_1;
+pub type ktxStream__custom_ptr = __BindgenUnionField<ktxStream__bindgen_ty_1__bindgen_ty_1>;
