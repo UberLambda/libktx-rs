@@ -42,6 +42,12 @@ impl<'a> Texture<'a> {
         source.create_texture()
     }
 
+    /// Attempts to write the texture (in its native format, either KTX1 or KTX2) to `sink`.
+    #[cfg(feature = "write")]
+    pub fn write_to<T: TextureSink>(&self, sink: &mut T) -> Result<(), KtxError> {
+        sink.write_texture(self)
+    }
+
     /// Returns the pointer to the (C-allocated) underlying [`sys::ktxTexture`].
     ///
     /// **SAFETY**: Pointers are harmless. Dereferencing them is not!
@@ -83,10 +89,64 @@ impl<'a> Texture<'a> {
         unsafe { sys::ktxTexture_GetElementSize(self.handle) as usize }
     }
 
-    /// Attempts to write the texture (in its native format, either KTX1 or KTX2) to `sink`.
-    #[cfg(feature = "write")]
-    pub fn write_to<T: TextureSink>(&self, sink: &mut T) -> Result<(), KtxError> {
-        sink.write_texture(self)
+    /// Attempts to return the offset (in bytes) into [`Self::data`] for the image
+    /// at the given mip level, array layer, and slice.  
+    /// `slice` is either a cubemap's face or a 3D texture's depth slice.
+    pub fn get_image_offset(&self, level: u32, layer: u32, slice: u32) -> Result<usize, KtxError> {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe {
+            let vtbl = (*self.handle).vtbl;
+            if let Some(get_image_offset_fn) = (*vtbl).GetImageOffset {
+                let mut offset = 0usize;
+                let err = get_image_offset_fn(self.handle, level, layer, slice, &mut offset);
+                ktx_result(err, offset)
+            } else {
+                Err(KtxError::InvalidValue)
+            }
+        }
+    }
+
+    /// Attempts to return the size (in bytes) of the uncompressed image data.
+    pub fn get_data_size_uncompressed(&self) -> Result<usize, KtxError> {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe {
+            let vtbl = (*self.handle).vtbl;
+            if let Some(get_data_size_fn) = (*vtbl).GetDataSizeUncompressed {
+                Ok((get_data_size_fn)(self.handle))
+            } else {
+                Err(KtxError::InvalidValue)
+            }
+        }
+    }
+
+    /// Attempts to return the size (in bytes) of a certain mip level.
+    pub fn get_image_size(&self, level: u32) -> Result<usize, KtxError> {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe {
+            let vtbl = (*self.handle).vtbl;
+            if let Some(get_image_size_fn) = (*vtbl).GetImageSize {
+                Ok((get_image_size_fn)(self.handle, level))
+            } else {
+                Err(KtxError::InvalidValue)
+            }
+        }
+    }
+
+    /// [Re]loads this image's data to its internal buffer.
+    /// Also see [`Self::data()`].
+    ///
+    /// Creating the image with [`enums::TextureCreateFlags::LOAD_IMAGE_DATA`] performs this step automatically on load.
+    pub fn load_image_data(&self) -> Result<(), KtxError> {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe {
+            let vtbl = (*self.handle).vtbl;
+            if let Some(load_image_data_fn) = (*vtbl).LoadImageData {
+                let err = (load_image_data_fn)(self.handle, std::ptr::null_mut(), 0usize);
+                ktx_result(err, ())
+            } else {
+                Err(KtxError::InvalidValue)
+            }
+        }
     }
 
     /// If this [`Texture`] really is a KTX1, returns KTX1-specific functionalities for it.
