@@ -3,7 +3,10 @@
 
 #[cfg(feature = "test-images")]
 mod test_images {
-    use libktx_rs::{sources::StreamSource, RustKtxStream, Texture, TextureCreateFlags};
+    use libktx_rs::{
+        enums::TranscodeFormat, sources::StreamSource, RustKtxStream, Texture, TextureCreateFlags,
+        TranscodeFlags,
+    };
     use libktx_rs_macros::file_tests;
     use std::{
         fs::File,
@@ -27,12 +30,33 @@ mod test_images {
             panic!("The loaded texture should be either KTX1 or KTX2!");
         }
 
-        println!(
-            "Data size: {}, element size: {}, row pitch: {}",
+        dbg!(
             stream_texture.data_size(),
             stream_texture.element_size(),
             stream_texture.row_pitch(0)
         );
+
+        if let Some(mut ktx2) = stream_texture.ktx2() {
+            if ktx2.needs_transcoding() {
+                println!("This KTX2 needs transcoding");
+                ktx2.transcode_basis(TranscodeFormat::Rgba32, TranscodeFlags::empty())
+                    .expect("transcoding to work");
+            }
+        }
+
+        stream_texture
+            .iterate_levels(|mip, face, width, height, depth, pixel_data| {
+                dbg!(mip, face, width, height, depth, pixel_data.len());
+                Ok(())
+            })
+            .expect("mip/face read-only iteration to succeed");
+
+        stream_texture
+            .iterate_levels_mut(|_mip, _face, _width, _height, _depth, pixel_data| {
+                pixel_data.fill(0x42u8);
+                Ok(())
+            })
+            .expect("mip/face read-write iteration to succeed");
     }
 
     // FIXME: These glob patterns assume that `cargo build` is invoked from the root of the workspace!
