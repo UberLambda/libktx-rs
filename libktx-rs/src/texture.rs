@@ -149,13 +149,65 @@ impl<'a> Texture<'a> {
         }
     }
 
-    /// Attempts to iterate all mip levels of the image, and all faces of cubemaps. This calls
+    /// Attempts to iterate all mip levels of the image, and all faces of cubemaps.
+    /// This calls
     /// ```rust,ignore
     /// callback(miplevel: i32, face: i32, width: i32, height: i32, depth: i32, pixel_data: &[u8]) -> Result<(), KtxError>
     /// ```
-    /// for each level/face.
+    /// for each level/face. The image data passed to the callback is immutable.
     /// Note that image data should already have been loaded (see [`Self::load_image_data()`]).
-    pub fn iterate_levels<F>(&mut self, mut callback: F) -> Result<(), KtxError>
+    pub fn iterate_levels<F>(&self, mut callback: F) -> Result<(), KtxError>
+    where
+        F: FnMut(i32, i32, i32, i32, i32, &[u8]) -> Result<(), KtxError>,
+    {
+        unsafe extern "C" fn c_iterator_fn<F>(
+            mip: i32,
+            face: i32,
+            width: i32,
+            height: i32,
+            depth: i32,
+            pixels_size: u64,
+            pixels: *mut std::ffi::c_void,
+            closure_ptr: *mut std::ffi::c_void,
+        ) -> sys::ktx_error_code_e
+        where
+            F: FnMut(i32, i32, i32, i32, i32, &[u8]) -> Result<(), KtxError>,
+        {
+            let closure = closure_ptr as *mut F;
+            let pixels_slice =
+                std::slice::from_raw_parts(pixels as *const u8, pixels_size as usize);
+            match (*closure)(mip, face, width, height, depth, pixels_slice) {
+                Ok(_) => sys::ktx_error_code_e_KTX_SUCCESS,
+                Err(code) => code as u32,
+            }
+        }
+
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe {
+            if (*self.handle).pData.is_null() {
+                // Data was not loaded
+                return Err(KtxError::InvalidValue);
+            }
+
+            let vtbl = (*self.handle).vtbl;
+            if let Some(iterate_levels_fn) = (*vtbl).IterateLevels {
+                let closure_ptr = &mut callback as *mut F as *mut std::ffi::c_void;
+                let err = (iterate_levels_fn)(self.handle, Some(c_iterator_fn::<F>), closure_ptr);
+                ktx_result(err, ())
+            } else {
+                Err(KtxError::InvalidValue)
+            }
+        }
+    }
+
+    /// Attempts to iterate all mip levels of the image, and all faces of cubemaps.
+    /// This calls
+    /// ```rust,ignore
+    /// callback(miplevel: i32, face: i32, width: i32, height: i32, depth: i32, pixel_data: &mut [u8]) -> Result<(), KtxError>
+    /// ```
+    /// for each level/face. The image data passed to the callback is mutable.
+    /// Note that image data should already have been loaded (see [`Self::load_image_data()`]).
+    pub fn iterate_levels_mut<F>(&mut self, mut callback: F) -> Result<(), KtxError>
     where
         F: FnMut(i32, i32, i32, i32, i32, &mut [u8]) -> Result<(), KtxError>,
     {
