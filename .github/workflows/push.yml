@@ -11,7 +11,8 @@ on:
     branches: [devel]
 
 env:
-  _CARGO_ARGS: --release --features write,test-images
+  _CARGO_ARGS: --release
+  _CARGO_FEATURES: write,test-images
 
 jobs:
   build_and_test:
@@ -52,14 +53,18 @@ jobs:
           toolchain: ${{ matrix.rust_toolchain }}
           override: true
 
+      - name: Add -lstdc++
+        if: matrix.os == 'ubuntu-latest'
+        run: echo "_CARGO_FEATURES=${_CARGO_FEATURES},libktx-rs-sys/link-libstdc++" >> $GITHUB_ENV
+
       - name: Cargo build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: ${{ env._CARGO_ARGS }}
+          args: ${{ env._CARGO_ARGS }} --features ${{ env._CARGO_FEATURES }}
 
       - name: Cargo test
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: ${{ env._CARGO_ARGS }}
+          args: ${{ env._CARGO_ARGS }} --features ${{ env._CARGO_FEATURES }}

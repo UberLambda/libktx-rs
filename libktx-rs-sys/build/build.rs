@@ -152,7 +152,11 @@ fn main() {
         .compile("ktx_c");
 
     let mut cxx_build = configure_build(cc::Build::new());
-    cxx_build.cpp(true).files(ktx_sources(CXX_SOURCE_FILES));
+    cxx_build
+        .cpp(true)
+        // AppleClang seemingly defaults to C++98...
+        .flag_if_supported("-std=c++14")
+        .files(ktx_sources(CXX_SOURCE_FILES));
     cxx_build.compile("ktx");
 
     println!("-- Link the native libKTX to the crate");
