@@ -6,9 +6,9 @@ name: Push
 
 on:
   pull_request:
-    branches: [ $default-branch ]
+    branches: [devel]
   push:
-    branches: [ $default-branch ]
+    branches: [devel]
 
 env:
   _CARGO_ARGS: --release --features write,test-images
