@@ -49,11 +49,14 @@ const C_SOURCE_FILES: &[&str] = &[
     // KTX_FEATURE_KTX1
     "lib/texture1.c",
     // KTX_FEATURE_VULKAN (?)
+];
+
+#[cfg(feature = "write")]
+const WRITE_C_SOURCE_FILES: &[&str] = &[
     // KTX_FEATURE_WRITE
-    #[cfg(feature = "write")]
     "lib/writer1.c",
-    #[cfg(feature = "write")]
     "lib/writer2.c",
+    "lib/basisu/encoder/apg_bmp.c",
 ];
 
 const CXX_SOURCE_FILES: &[&str] = &[
@@ -63,6 +66,29 @@ const CXX_SOURCE_FILES: &[&str] = &[
     // this file is not open source, so it's gated behind a feature. see readme.
     #[cfg(feature = "nonfree-etc-unpack")]
     "lib/etcdec.cxx",
+];
+
+#[cfg(feature = "write")]
+const WRITE_CXX_SOURCE_FILES: &[&str] = &[
+    // KTX_FEATURE_WRITE
+    "lib/basisu/encoder/basisu_astc_decomp.cpp",
+    "lib/basisu/encoder/basisu_backend.cpp",
+    "lib/basisu/encoder/basisu_basis_file.cpp",
+    "lib/basisu/encoder/basisu_bc7enc.cpp",
+    "lib/basisu/encoder/basisu_comp.cpp",
+    "lib/basisu/encoder/basisu_enc.cpp",
+    "lib/basisu/encoder/basisu_etc.cpp",
+    "lib/basisu/encoder/basisu_frontend.cpp",
+    "lib/basisu/encoder/basisu_global_selector_palette_helpers.cpp",
+    "lib/basisu/encoder/basisu_gpu_texture.cpp",
+    "lib/basisu/encoder/basisu_kernels_sse.cpp",
+    "lib/basisu/encoder/basisu_pvrtc1_4.cpp",
+    "lib/basisu/encoder/basisu_resample_filters.cpp",
+    "lib/basisu/encoder/basisu_resampler.cpp",
+    "lib/basisu/encoder/basisu_ssim.cpp",
+    "lib/basisu/encoder/basisu_uastc_enc.cpp",
+    "lib/basisu/encoder/jpgd.cpp",
+    "lib/basisu/encoder/lodepng.cpp",
 ];
 
 fn spooky_warning(msg: &str) {
@@ -144,20 +170,31 @@ fn main() {
         .expect("Failed to chdir");
 
     println!("-- Build the native libKTX");
+    {
+        let mut c_build = configure_build(cc::Build::new());
+        c_build
+            .cpp(false)
+            .files(ktx_sources(C_SOURCE_FILES))
+            .file("build/wrapper.c");
 
-    configure_build(cc::Build::new())
-        .cpp(false)
-        .files(ktx_sources(C_SOURCE_FILES))
-        .file("build/wrapper.c")
-        .compile("ktx_c");
+        #[cfg(feature = "write")]
+        c_build.files(ktx_sources(WRITE_C_SOURCE_FILES));
 
-    let mut cxx_build = configure_build(cc::Build::new());
-    cxx_build
-        .cpp(true)
-        // AppleClang seemingly defaults to C++98...
-        .flag_if_supported("-std=c++14")
-        .files(ktx_sources(CXX_SOURCE_FILES));
-    cxx_build.compile("ktx");
+        c_build.compile("ktx_c");
+    }
+    {
+        let mut cxx_build = configure_build(cc::Build::new());
+        cxx_build
+            .cpp(true)
+            .files(ktx_sources(CXX_SOURCE_FILES))
+            // AppleClang seemingly defaults to C++98...
+            .flag_if_supported("-std=c++14");
+
+        #[cfg(feature = "write")]
+        cxx_build.files(ktx_sources(WRITE_CXX_SOURCE_FILES));
+        
+        cxx_build.compile("ktx");
+    }
 
     println!("-- Link the native libKTX to the crate");
 
