@@ -3,7 +3,7 @@
 
 [package]
 name = "libktx-rs"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2018"
 
 description = "Reading, writing and transcoding of Khronos Textures (KTX1 and KTX2)."
@@ -35,7 +35,7 @@ include = [
 "write" = ["libktx-rs-sys/write"]
 
 [dependencies]
-libktx-rs-sys = { path = "../libktx-rs-sys", version = "0.2.42" }
+libktx-rs-sys = { path = "../libktx-rs-sys", version = "0.2.43" }
 bitflags = "^1.2"
 log = { version = "^0.4" }
 
