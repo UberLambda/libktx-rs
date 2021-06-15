@@ -112,8 +112,8 @@ fn configure_build(mut build: cc::Build) -> cc::Build {
     match target_os.as_str() {
         "windows" => {
             build
-                .file("lib/internalexport.def")
-                .file("lib/internalexport_write.def")
+                //.file("lib/internalexport.def")
+                //.file("lib/internalexport_write.def")
                 .define("KTX_API", "__declspec(dllexport)")
                 .define("BASISU_NO_ITERATOR_DEBUG_LEVEL", "1");
         }
