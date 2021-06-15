@@ -60,6 +60,7 @@ const WRITE_C_SOURCE_FILES: &[&str] = &[
 ];
 
 const CXX_SOURCE_FILES: &[&str] = &[
+    "lib/basis_encode.cpp",
     "lib/basis_transcode.cpp",
     "lib/basisu/transcoder/basisu_transcoder.cpp",
     "lib/etcunpack.cxx",
