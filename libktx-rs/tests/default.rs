@@ -14,6 +14,13 @@ fn create_default_ktx1() {
     assert_eq!(texture.element_size(), 4);
     assert_eq!(texture.row_pitch(0), 4);
     assert_eq!(texture.data_size(), 4);
+
+    texture
+        .iterate_levels(|mip, face, width, height, depth, pixel_data| {
+            dbg!(mip, face, width, height, depth, pixel_data);
+            Ok(())
+        })
+        .expect("mip/face iteration to succeed");
 }
 
 #[test]
@@ -24,4 +31,11 @@ fn create_default_ktx2() {
     assert_eq!(texture.element_size(), 4);
     assert_eq!(texture.row_pitch(0), 4);
     assert_eq!(texture.data_size(), 4);
+
+    texture
+        .iterate_levels(|mip, face, width, height, depth, pixel_data| {
+            dbg!(mip, face, width, height, depth, pixel_data);
+            Ok(())
+        })
+        .expect("mip/face iteration to succeed");
 }
