@@ -45,7 +45,7 @@ jobs:
           key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-signature') }}-v1
 
       - name: LFS pull
-        run: git lfs pull
+        run: git submodule foreach --recursive git lfs pull
 
       - name: Install Rust ${{ matrix.rust_toolchain }}
         uses: actions-rs/toolchain@v1
