@@ -1,0 +1,65 @@
+# Copyright (C) 2021 Paolo Jovon <paolo.jovon@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
+# vim: set expandtab sw=2 list:
+
+name: Push
+
+on:
+  pull_request:
+    branches: [ $default-branch ]
+  push:
+    branches: [ $default-branch ]
+
+env:
+  _CARGO_ARGS: --release --features write,test-images
+
+jobs:
+  build_and_test:
+    name: Build and test
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust_toolchain: [stable, nightly]
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      # git LFS caching
+      # See: https://github.com/actions/checkout/issues/165#issuecomment-657673315
+      - name: Create LFS signature
+        run: git submodule foreach --recursive git lfs ls-files -l | cut -d' ' -f1 | grep --invert-match Entering | sort > .lfs-signature
+
+      - name: Restore LFS cache
+        uses: actions/cache@v2
+        id: lfs-cache
+        with:
+          path: **/.git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-signature') }}-v1
+
+      - name: LFS pull
+        run: git lfs pull
+
+      - name: Install Rust ${{ matrix.rust_toolchain }}
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust_toolchain }}
+          override: true
+
+      - name: Cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: ${_CARGO_ARGS}
+
+      - name: Cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: ${_CARGO_ARGS}
