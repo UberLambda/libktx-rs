@@ -151,7 +151,7 @@ impl<'a> Texture<'a> {
 
     /// Attempts to iterate all mip levels of the image, and all faces of cubemaps. This calls
     /// ```rust,ignore
-    /// callback(miplevel: isize, face: isize, width: isize, height: isize, depth: isize, pixel_data: &[u8]) -> Result<(), KtxError>
+    /// callback(miplevel: i32, face: i32, width: i32, height: i32, depth: i32, pixel_data: &[u8]) -> Result<(), KtxError>
     /// ```
     /// for each level/face.
     /// Note that image data should already have been loaded (see [`Self::load_image_data()`]).
