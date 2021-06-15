@@ -3,6 +3,7 @@
 [![crates.io](https://img.shields.io/crates/v/libktx-rs.svg)](https://crates.io/crates/libktx-rs)
 [![docs.rs](https://docs.rs/libktx-rs/badge.svg)](https://docs.rs/libktx-rs)
 [![license](https://img.shields.io/github/license/UberLambda/libktx-rs)](LICENSE)
+[![CI status](https://github.com/UberLambda/libktx-rs/actions/workflows/push.yml/badge.svg)](https://github.com/UberLambda/libktx-rs/actions/workflows/push.yml)
 
 A library for reading, writing and transcoding [Khronos Textures](https://www.khronos.org/ktx/) (KTX1 and KTX2) in Rust.
 
