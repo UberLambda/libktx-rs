@@ -3,7 +3,7 @@
 
 [package]
 name = "libktx-rs-sys"
-version = "0.2.43"
+version = "0.2.44"
 edition = "2018"
 
 description = "A low-level wrapper over https://github.com/KhronosGroup/KTX-Software."
