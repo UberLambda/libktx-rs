@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use cmake;
+use glob::glob;
 
 const SOURCE_DIR: &str = "build/KTX-Software";
 const CMAKELISTS: &str = "build/KTX-Software/CMakeLists.txt";
@@ -116,30 +117,44 @@ include("../no_etc_unpack.cmake")
 }
 
 fn main() {
-    let (static_library, lib_kind) = if cfg!(feature = "static") {
-        ("ON", "static")
+    let (static_library, static_library_flag, lib_kind) = if cfg!(feature = "static") {
+        (true, "ON", "static")
     } else {
-        ("OFF", "dylib")
+        (false, "OFF", "dylib")
     };
     println!("-- Build KTX-Software");
 
     let mut lib_dir = etc_unpack::toggle(
         cmake::Config::new(SOURCE_DIR)
             .pic(true)
-            .define("KTX_FEATURE_STATIC_LIBRARY", static_library),
+            .define("KTX_FEATURE_STATIC_LIBRARY", static_library_flag),
     )
     .build();
     println!("Built {} to {:?}", lib_kind, lib_dir);
-
     lib_dir.push("lib");
-    let lib_dir_str = lib_dir
-        .into_os_string()
-        .into_string()
-        .expect("a valid UTF-8 path");
 
     println!("-- Link the native libKTX to the crate");
-    println!("cargo:rustc-link-search=native={}", lib_dir_str);
+    println!("cargo:rustc-link-search=native={}", lib_dir.display());
     println!("cargo:rustc-link-lib={}=ktx", lib_kind);
+
+    if static_library {
+        // When building statically, the ASTC decoder is a separate static library
+        // (otherwise, it's built inside libktx.so)
+        let astc_lib_path = glob(format!("{}/*astcenc*.*", lib_dir.display()).as_str())
+            .expect("globbing lib/")
+            .next()
+            .expect("[lib]astcenc*.{a,lib} to be present")
+            .expect("the globbed path to be valid");
+        let astc_lib_name = astc_lib_path
+            .file_stem()
+            .expect("this path to refer to a filename")
+            .to_string_lossy();
+        let astc_lib_name = astc_lib_name
+            .strip_prefix("lib")
+            .expect("stripping the lib prefix");
+
+        println!("cargo:rustc-link-lib=static={}", astc_lib_name);
+    }
 
     #[cfg(feature = "link-libstdc++")]
     println!("cargo:rustc-link-lib=dylib=stdc++");
