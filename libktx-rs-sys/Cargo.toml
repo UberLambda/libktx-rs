@@ -25,6 +25,8 @@ include = [
     "/build/*.c",
     "/build/*.h",
     # KTX-Software submodule (only relevant files)
+    "/build/KTX-Software/lib/**/CMakeLists.txt",
+    "/build/KTX-Software/lib/**/*.cmake",
     "/build/KTX-Software/lib/**/*.c",
     "/build/KTX-Software/lib/**/*.cc",
     "/build/KTX-Software/lib/**/*.c[px+][px+]",
@@ -40,7 +42,10 @@ build = "build/build.rs"
 links = "ktx"
 
 [features]
-default = ["write"]
+default = ["static", "write"]
+
+# Compile libktx as a static library? 
+"static" = []
 
 # Link libstdc++. Required on Linux if using `CXX=g++`.
 # Alternatively, for full-LLVM builds (recommended):
@@ -64,5 +69,5 @@ default = ["write"]
 log = "0.4.14"
 
 [build-dependencies]
-cc = { version = "1.0.69", features = ["parallel"] }
 bindgen = { version = "0.59.0", optional = true }
+cmake = "0.1.45"
