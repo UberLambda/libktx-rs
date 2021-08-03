@@ -2207,8 +2207,259 @@ pub const ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC__ETC1_DISABLE_FLIP_AND_INDIV
 #[doc = " @brief Flags specifiying UASTC encoding options."]
 pub type ktx_pack_uastc_flag_bits_e = ::std::os::raw::c_uint;
 pub type ktx_pack_uastc_flags = ktx_uint32_t;
+pub const ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_FASTEST:
+    ktx_pack_astc_quality_levels_e = 0;
+pub const ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_FAST:
+    ktx_pack_astc_quality_levels_e = 10;
+pub const ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_MEDIUM:
+    ktx_pack_astc_quality_levels_e = 60;
+pub const ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_THOROUGH:
+    ktx_pack_astc_quality_levels_e = 98;
+pub const ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_EXHAUSTIVE:
+    ktx_pack_astc_quality_levels_e = 100;
+pub const ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_MAX:
+    ktx_pack_astc_quality_levels_e = 100;
+#[doc = " @~English"]
+#[doc = " @brief Options specifiying ASTC encoding quality levels."]
+pub type ktx_pack_astc_quality_levels_e = ::std::os::raw::c_uint;
+#[doc = ": 8.00 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x4:
+    ktx_pack_astc_block_dimension_e = 0;
+#[doc = ": 6.40 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x4:
+    ktx_pack_astc_block_dimension_e = 1;
+#[doc = ": 5.12 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x5:
+    ktx_pack_astc_block_dimension_e = 2;
+#[doc = ": 4.27 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x5:
+    ktx_pack_astc_block_dimension_e = 3;
+#[doc = ": 3.56 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x6:
+    ktx_pack_astc_block_dimension_e = 4;
+#[doc = ": 3.20 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_8x5:
+    ktx_pack_astc_block_dimension_e = 5;
+#[doc = ": 2.67 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_8x6:
+    ktx_pack_astc_block_dimension_e = 6;
+#[doc = ": 2.56 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x5:
+    ktx_pack_astc_block_dimension_e = 7;
+#[doc = ": 2.13 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x6:
+    ktx_pack_astc_block_dimension_e = 8;
+#[doc = ": 2.00 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_8x8:
+    ktx_pack_astc_block_dimension_e = 9;
+#[doc = ": 1.60 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x8:
+    ktx_pack_astc_block_dimension_e = 10;
+#[doc = ": 1.28 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x10:
+    ktx_pack_astc_block_dimension_e = 11;
+#[doc = ": 1.07 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_12x10:
+    ktx_pack_astc_block_dimension_e = 12;
+#[doc = ": 0.89 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_12x12:
+    ktx_pack_astc_block_dimension_e = 13;
+#[doc = ": 4.74 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_3x3x3:
+    ktx_pack_astc_block_dimension_e = 14;
+#[doc = ": 3.56 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x3x3:
+    ktx_pack_astc_block_dimension_e = 15;
+#[doc = ": 2.67 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x4x3:
+    ktx_pack_astc_block_dimension_e = 16;
+#[doc = ": 2.00 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x4x4:
+    ktx_pack_astc_block_dimension_e = 17;
+#[doc = ": 1.60 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x4x4:
+    ktx_pack_astc_block_dimension_e = 18;
+#[doc = ": 1.28 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x5x4:
+    ktx_pack_astc_block_dimension_e = 19;
+#[doc = ": 1.02 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x5x5:
+    ktx_pack_astc_block_dimension_e = 20;
+#[doc = ": 0.85 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x5x5:
+    ktx_pack_astc_block_dimension_e = 21;
+#[doc = ": 0.71 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x6x5:
+    ktx_pack_astc_block_dimension_e = 22;
+#[doc = ": 0.59 bpp"]
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x6x6:
+    ktx_pack_astc_block_dimension_e = 23;
+pub const ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_MAX:
+    ktx_pack_astc_block_dimension_e = 23;
+#[doc = " @~English"]
+#[doc = " @brief Options specifiying ASTC encoding block dimensions"]
+pub type ktx_pack_astc_block_dimension_e = ::std::os::raw::c_uint;
+pub const ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_UNKNOWN:
+    ktx_pack_astc_encoder_function_e = 0;
+pub const ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_SRGB:
+    ktx_pack_astc_encoder_function_e = 1;
+pub const ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_LINEAR:
+    ktx_pack_astc_encoder_function_e = 2;
+pub const ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_MAX:
+    ktx_pack_astc_encoder_function_e = 2;
+#[doc = " @~English"]
+#[doc = " @brief Options specifiying ASTC encoder profile function"]
+pub type ktx_pack_astc_encoder_function_e = ::std::os::raw::c_uint;
+pub const ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_DEFAULT:
+    ktx_pack_astc_encoder_mode_e = 0;
+pub const ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_LDR:
+    ktx_pack_astc_encoder_mode_e = 1;
+pub const ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_HDR:
+    ktx_pack_astc_encoder_mode_e = 2;
+pub const ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_MAX:
+    ktx_pack_astc_encoder_mode_e = 2;
+#[doc = " @~English"]
+#[doc = " @brief Options specifying ASTC encoder profile mode"]
+#[doc = "        This and function is used later to derive the profile."]
+pub type ktx_pack_astc_encoder_mode_e = ::std::os::raw::c_uint;
 extern "C" {
     pub static KTX_ETC1S_DEFAULT_COMPRESSION_LEVEL: ktx_uint32_t;
+}
+#[doc = " @memberof ktxTexture"]
+#[doc = " @~English"]
+#[doc = " @brief Structure for passing extended parameters to"]
+#[doc = "        ktxTexture_CompressAstc."]
+#[doc = ""]
+#[doc = " Passing a struct initialized to 0 (e.g. \" = {};\") will use the default"]
+#[doc = " values. Only those settings to be modified need be non-zero."]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ktxAstcParams {
+    pub structSize: ktx_uint32_t,
+    pub verbose: ktx_bool_t,
+    pub threadCount: ktx_uint32_t,
+    #[doc = " astcenc params"]
+    pub blockDimension: ktx_uint32_t,
+    pub function: ktx_uint32_t,
+    pub mode: ktx_uint32_t,
+    pub qualityLevel: ktx_uint32_t,
+    pub normalMap: ktx_bool_t,
+    pub inputSwizzle: [::std::os::raw::c_char; 4usize],
+}
+#[test]
+fn bindgen_test_layout_ktxAstcParams() {
+    assert_eq!(
+        ::std::mem::size_of::<ktxAstcParams>(),
+        36usize,
+        concat!("Size of: ", stringify!(ktxAstcParams))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ktxAstcParams>(),
+        4usize,
+        concat!("Alignment of ", stringify!(ktxAstcParams))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxAstcParams>())).structSize as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxAstcParams),
+            "::",
+            stringify!(structSize)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxAstcParams>())).verbose as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxAstcParams),
+            "::",
+            stringify!(verbose)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxAstcParams>())).threadCount as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxAstcParams),
+            "::",
+            stringify!(threadCount)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxAstcParams>())).blockDimension as *const _ as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxAstcParams),
+            "::",
+            stringify!(blockDimension)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxAstcParams>())).function as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxAstcParams),
+            "::",
+            stringify!(function)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxAstcParams>())).mode as *const _ as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxAstcParams),
+            "::",
+            stringify!(mode)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxAstcParams>())).qualityLevel as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxAstcParams),
+            "::",
+            stringify!(qualityLevel)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxAstcParams>())).normalMap as *const _ as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxAstcParams),
+            "::",
+            stringify!(normalMap)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ktxAstcParams>())).inputSwizzle as *const _ as usize },
+        29usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ktxAstcParams),
+            "::",
+            stringify!(inputSwizzle)
+        )
+    );
+}
+extern "C" {
+    pub fn ktxTexture_CompressAstcEx(
+        This: *mut ktxTexture,
+        params: *mut ktxAstcParams,
+    ) -> ktx_error_code_e;
+}
+extern "C" {
+    pub fn ktxTexture_CompressAstc(
+        This: *mut ktxTexture,
+        quality: ktx_uint32_t,
+    ) -> ktx_error_code_e;
 }
 #[doc = " @memberof ktxTexture2"]
 #[doc = " @~English"]
