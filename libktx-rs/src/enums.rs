@@ -254,6 +254,198 @@ impl TryFrom<u32> for TranscodeFormat {
     }
 }
 
+/// Quality level for ASTC compression.
+///
+/// This only applies to Arm's ASTC encoder, which is in `libktx-rs-sys/build/KTX-Software/lib/astc-encoder`.
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[repr(u32)]
+pub enum PackAstcQualityLevels {
+    Fastest = sys::ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_FASTEST,
+    Fast = sys::ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_FAST,
+    Medium = sys::ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_MEDIUM,
+    Thorough = sys::ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_THOROUGH,
+    Exhaustive = sys::ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_EXHAUSTIVE,
+}
+
+/// Block dimensions for ASTC compression.
+///
+/// This only applies to Arm's ASTC encoder, which is in `libktx-rs-sys/build/KTX-Software/lib/astc-encoder`.
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[repr(u32)]
+pub enum PackAstcBlockDimension {
+    /// 2D, 8.0 bpp
+    Dim4x4 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x4,
+    /// 2D, 6.40 bpp
+    Dim5x4 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x4,
+    /// 2D, 5.12 bpp
+    Dim5x5 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x5,
+    /// 2D, 4.27 bpp
+    Dim6x5 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x5,
+    /// 2D, 3.56 bpp
+    Dim6x6 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x6,
+    /// 2D, 3.20 bpp
+    Dim8x5 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_8x5,
+    /// 2D, 2.67 bpp
+    Dim8x6 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_8x6,
+    /// 2D, 2.56 bpp
+    Dim10x5 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x5,
+    /// 2D, 2.13 bpp
+    Dim10x6 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x6,
+    /// 2D, 2.00 bpp
+    Dim8x8 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_8x8,
+    /// 2D, 1.60 bpp
+    Dim10x8 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x8,
+    /// 2D, 1.28 bpp
+    Dim10x10 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x10,
+    /// 2D, 1.07 bpp
+    Dim12x10 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_12x10,
+    /// 2D, 0.89 bpp
+    Dim12x12 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_12x12,
+
+    /// 3D, 4.74 bpp
+    Dim3x3x3 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_3x3x3,
+    /// 3D, 3.56 bpp
+    Dim4x3x3 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x3x3,
+    /// 3D, 2.67 bpp
+    Dim4x4x3 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x4x3,
+    /// 3D, 2.00 bpp
+    Dim4x4x4 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x4x4,
+    /// 3D, 1.60 bpp
+    Dim5x4x4 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x4x4,
+    /// 3D, 1.28 bpp
+    Dim5x5x4 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x5x4,
+    /// 3D, 1.02 bpp
+    Dim5x5x5 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x5x5,
+    /// 3D, 0.85 bpp
+    Dim6x5x5 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x5x5,
+    /// 3D, 0.71 bpp
+    Dim6x6x5 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x6x5,
+    /// 3D, 0.59 bpp
+    Dim6x6x6 = sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x6x6,
+}
+
+impl TryFrom<u32> for PackAstcBlockDimension {
+    type Error = &'static str;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        // TODO: A bit ugly (but still manageable), convert to a macro?
+        Ok(match value {
+            // 2D
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x4 => Self::Dim4x4,
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x4 => Self::Dim5x4,
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x5 => Self::Dim5x5,
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x5 => Self::Dim6x5,
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x6 => Self::Dim6x6,
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_8x5 => Self::Dim8x5,
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_8x6 => Self::Dim8x6,
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x5 => {
+                Self::Dim10x5
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x6 => {
+                Self::Dim10x6
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_8x8 => Self::Dim8x8,
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x8 => {
+                Self::Dim10x8
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_10x10 => {
+                Self::Dim10x10
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_12x10 => {
+                Self::Dim12x10
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_12x12 => {
+                Self::Dim12x12
+            }
+
+            // 3D
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_3x3x3 => {
+                Self::Dim3x3x3
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x3x3 => {
+                Self::Dim4x3x3
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x4x3 => {
+                Self::Dim4x4x3
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_4x4x4 => {
+                Self::Dim4x4x4
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x4x4 => {
+                Self::Dim5x4x4
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x5x4 => {
+                Self::Dim5x5x4
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_5x5x5 => {
+                Self::Dim5x5x5
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x5x5 => {
+                Self::Dim6x5x5
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x6x5 => {
+                Self::Dim6x6x5
+            }
+            sys::ktx_pack_astc_block_dimension_e_KTX_PACK_ASTC_BLOCK_DIMENSION_6x6x6 => {
+                Self::Dim6x6x6
+            }
+            _ => return Err("Not a ASTC block dimension enumerant"),
+        })
+    }
+}
+
+/// ASTC encoder profile function.
+///
+/// This only applies to Arm's ASTC encoder, which is in `libktx-rs-sys/build/KTX-Software/lib/astc-encoder`.
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[repr(u32)]
+pub enum PackAstcEncoderFunction {
+    Unknown = sys::ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_UNKNOWN,
+    Srgb = sys::ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_SRGB,
+    Linear = sys::ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_LINEAR,
+}
+
+impl TryFrom<u32> for PackAstcEncoderFunction {
+    type Error = &'static str;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Ok(match value {
+            sys::ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_UNKNOWN => {
+                Self::Unknown
+            }
+            sys::ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_SRGB => Self::Srgb,
+            sys::ktx_pack_astc_encoder_function_e_KTX_PACK_ASTC_ENCODER_FUNCTION_LINEAR => {
+                Self::Linear
+            }
+            _ => return Err("Not a ASTC encoder function enumerant"),
+        })
+    }
+}
+
+/// ASTC encoder mode.
+///
+/// This only applies to Arm's ASTC encoder, which is in `libktx-rs-sys/build/KTX-Software/lib/astc-encoder`.
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[repr(u32)]
+pub enum PackAstcEncoderMode {
+    Default = sys::ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_DEFAULT,
+    Ldr = sys::ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_LDR,
+    Hdr = sys::ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_HDR,
+}
+
+impl TryFrom<u32> for PackAstcEncoderMode {
+    type Error = &'static str;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Ok(match value {
+            sys::ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_DEFAULT => Self::Default,
+            sys::ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_LDR => Self::Ldr,
+            sys::ktx_pack_astc_encoder_mode_e_KTX_PACK_ASTC_ENCODER_MODE_HDR => Self::Hdr,
+            _ => return Err("Not a ASTC encoder mode enumerant"),
+        })
+    }
+}
+
 bitflags! {
     /// Flags applied when transcoding a [`crate::texture::Ktx2`] via Basis Universal.
     ///
