@@ -4,7 +4,10 @@
 //! Core types involving KTX [`Texture`]s.
 
 use crate::{
-    enums::{ktx_result, SuperCompressionScheme, TranscodeFlags, TranscodeFormat},
+    enums::{
+        ktx_result, PackAstcBlockDimension, PackAstcEncoderFunction, PackAstcEncoderMode,
+        PackAstcQualityLevel, SuperCompressionScheme, TranscodeFlags, TranscodeFormat,
+    },
     sys, KtxError,
 };
 use std::marker::PhantomData;
@@ -20,6 +23,21 @@ pub trait TextureSource<'a> {
 pub trait TextureSink {
     /// Attempts to write `texture` to `self`.
     fn write_texture(&mut self, texture: &Texture) -> Result<(), KtxError>;
+}
+
+/// Parameters for ASTC compression.
+///
+/// This only applies to Arm's ASTC encoder, which is in `libktx-rs-sys/build/KTX-Software/lib/astc-encoder`.  
+/// See [`sys::ktxAstcParams`] for information on the various fields.
+pub struct AstcParams {
+    pub verbose: bool,
+    pub thread_count: u32,
+    pub block_dimension: PackAstcBlockDimension,
+    pub function: PackAstcEncoderFunction,
+    pub mode: PackAstcEncoderMode,
+    pub quality_level: PackAstcQualityLevel,
+    pub normal_map: bool,
+    pub input_swizzle: [char; 4],
 }
 
 /// A KTX (1 or 2) texture.
@@ -415,6 +433,38 @@ impl<'a, 'b: 'a> Ktx2<'a, 'b> {
     pub fn deflate_zstd(&mut self, level: u32) -> Result<(), KtxError> {
         // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX2
         let errcode = unsafe { sys::ktxTexture2_DeflateZstd(self.handle(), level as u32) };
+        ktx_result(errcode, ())
+    }
+
+    /// Compresses the KTX2's image data with ASTC.  
+    /// This is a simplified version of [`Ktx2::compress_astc_ex`].
+    pub fn compress_astc(&mut self, quality: u32) -> Result<(), KtxError> {
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX2
+        let errcode = unsafe { sys::ktxTexture2_CompressAstc(self.handle(), quality) };
+        ktx_result(errcode, ())
+    }
+
+    /// Compresses the KTX2's image data with ASTC.   
+    /// This is an extended version of [`Ktx2::compress_astc`].
+    pub fn compress_astc_ex(&mut self, params: AstcParams) -> Result<(), KtxError> {
+        let mut c_input_swizzle: [std::os::raw::c_char; 4] = [0, 0, 0, 0];
+        for (ch, c_ch) in params.input_swizzle.iter().zip(c_input_swizzle.iter_mut()) {
+            *c_ch = *ch as _;
+        }
+        let mut c_params = sys::ktxAstcParams {
+            structSize: std::mem::size_of::<sys::ktxAstcParams>() as u32,
+            verbose: params.verbose,
+            threadCount: params.thread_count,
+            blockDimension: params.block_dimension as u32,
+            function: params.function as u32,
+            mode: params.mode as u32,
+            qualityLevel: params.quality_level as u32,
+            normalMap: params.normal_map,
+            inputSwizzle: c_input_swizzle,
+        };
+
+        // SAFETY: Safe if `self.texture.handle` is sane + actually a KTX2
+        let errcode = unsafe { sys::ktxTexture2_CompressAstcEx(self.handle(), &mut c_params) };
         ktx_result(errcode, ())
     }
 

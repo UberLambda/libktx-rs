@@ -259,7 +259,7 @@ impl TryFrom<u32> for TranscodeFormat {
 /// This only applies to Arm's ASTC encoder, which is in `libktx-rs-sys/build/KTX-Software/lib/astc-encoder`.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 #[repr(u32)]
-pub enum PackAstcQualityLevels {
+pub enum PackAstcQualityLevel {
     Fastest = sys::ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_FASTEST,
     Fast = sys::ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_FAST,
     Medium = sys::ktx_pack_astc_quality_levels_e_KTX_PACK_ASTC_QUALITY_LEVEL_MEDIUM,
