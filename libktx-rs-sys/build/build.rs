@@ -149,9 +149,10 @@ fn main() {
             .file_stem()
             .expect("this path to refer to a filename")
             .to_string_lossy();
-        let astc_lib_name = astc_lib_name
-            .strip_prefix("lib")
-            .expect("stripping the lib prefix");
+        let astc_lib_name = match astc_lib_name.strip_prefix("lib") {
+            Some(stripped) => stripped,
+            None => &astc_lib_name,
+        };
 
         println!("cargo:rustc-link-lib=static={}", astc_lib_name);
     }
