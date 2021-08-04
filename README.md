@@ -22,19 +22,6 @@ and <https://docs.rs/libktx-rs-sys> for the low-level FFI.
 ## Building and features
 Clone this root repository and all git submodule (`git clone --recursive https://github.com/UberLambda/libktx-rs`), then run `cargo build`.
 
-### Linux and GCC
-If building on Linux with `CC=gcc` and `CXX=g++`, linking could fail with a similar message:
-
-```
-note: /usr/bin/ld: {...}/libktx-rs/target/debug/build/{...}/libktx.a(basis_transcode.o):(.data.rel.local.DW.ref.__gxx_personality_v0[DW.ref.__gxx_personality_v0]+0x0): undefined reference to `__gxx_personality_v0'
-```
-
-If so, either:
-
-- Use `CC=clang` / `CXX=clang++` to compile, and follow [these instructions](https://nnethercote.github.io/perf-book/compile-times.html) to enable lld as linker used by Rust (recommended); or
-- Enable the `libktx-rs-sys/link-libstdc++` feature to link with `libstdc++`.
-Note that libstdc++ is licensed under [LGPL with the "Runtime Library Exception"](https://gcc.gnu.org/onlinedocs/libstdc++/manual/license.html).
-
 ### Image writing
 To enable KTX image writing support (which is already enabled in the default feature set), enable the `libktx-rs/write` feature.
 
@@ -47,6 +34,9 @@ enable the `libktx-rs-sys/run-bindgen` feature.
 
 ## License
 This Rust wrapper, and the KTX-Software library itself, are both licensed under the [Apache-2.0 license](LICENSE).
+
+### Linux and GCC
+Note that the library links to libstdc++, which is licensed under [LGPL with the "Runtime Library Exception"](https://gcc.gnu.org/onlinedocs/libstdc++/manual/license.html).
 
 ### License exception
 **If the ETC decoder is enabled, the build will contain a proprietary source code file by Ericsson - [KTX-Software/lib/etcdec.cxx](https://github.com/KhronosGroup/KTX-Software/blob/master/lib/etcdec.cxx)!**  

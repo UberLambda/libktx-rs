@@ -156,8 +156,12 @@ fn main() {
         println!("cargo:rustc-link-lib=static={}", astc_lib_name);
     }
 
-    #[cfg(feature = "link-libstdc++")]
+    // Linux: GNU C++ standard library
+    #[cfg(target_os = "linux")]
     println!("cargo:rustc-link-lib=dylib=stdc++");
+    // AppleDarwin, BSDs, Android...: LLVM's C++ standard library
+    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
+    println!("cargo:rustc-link-lib=dylib=c++");
 
     #[cfg(feature = "run-bindgen")]
     run_bindgen::generate_bindings();

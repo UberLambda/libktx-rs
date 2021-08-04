@@ -47,13 +47,6 @@ default = ["static", "write"]
 # Compile libktx as a static library? 
 "static" = []
 
-# Link libstdc++. Required on Linux if using `CXX=g++`.
-# Alternatively, for full-LLVM builds (recommended):
-# 1. Set `CC=clang`, `CXX=clang++` to replace GCC with Clang
-# 2. Set `CXXSTDLIB=stdc++` to use clang's libc++
-# 3. Copy https://github.com/bevyengine/bevy/blob/main/.cargo/config_fast_builds to use clang instead of gcc as a linker
-"link-libstdc++" = []
-
 # Run bindgen as part of the build process?
 "run-bindgen" = ["bindgen"]
 
