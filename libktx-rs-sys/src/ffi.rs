@@ -2450,14 +2450,14 @@ fn bindgen_test_layout_ktxAstcParams() {
     );
 }
 extern "C" {
-    pub fn ktxTexture_CompressAstcEx(
-        This: *mut ktxTexture,
+    pub fn ktxTexture2_CompressAstcEx(
+        This: *mut ktxTexture2,
         params: *mut ktxAstcParams,
     ) -> ktx_error_code_e;
 }
 extern "C" {
-    pub fn ktxTexture_CompressAstc(
-        This: *mut ktxTexture,
+    pub fn ktxTexture2_CompressAstc(
+        This: *mut ktxTexture2,
         quality: ktx_uint32_t,
     ) -> ktx_error_code_e;
 }
