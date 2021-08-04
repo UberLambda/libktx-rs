@@ -58,7 +58,7 @@ jobs:
         shell: bash
         run: |
           cat <<EOF >libktx-rs-sys/build/KTX-Software/cmake/version.cmake
-          set(KTX_VERSION "0.0.0-0")
+          set(KTX_VERSION "0.0.0")
           set(KTX_VERSION_MAJOR "0")
           set(KTX_VERSION_MINOR "0")
           set(KTX_VERSION_PATCH "0")
