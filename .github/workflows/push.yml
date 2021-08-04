@@ -53,10 +53,6 @@ jobs:
           toolchain: ${{ matrix.rust_toolchain }}
           override: true
 
-      - name: Add -lstdc++
-        if: matrix.os == 'ubuntu-latest'
-        run: echo "_CARGO_FEATURES=${_CARGO_FEATURES},libktx-rs-sys/link-libstdc++" >> $GITHUB_ENV
-
       - name: Cargo build
         uses: actions-rs/cargo@v1
         with:
