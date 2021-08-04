@@ -53,6 +53,17 @@ jobs:
           toolchain: ${{ matrix.rust_toolchain }}
           override: true
 
+      - name: Force a version number
+        if: matrix.os == 'windows-latest'
+        run: |
+          cat <<EOF >libktx-rs-sys/build/KTX-Software/cmake/version.cmake
+          set(KTX_VERSION "0.0.0-0")
+          set(KTX_VERSION_MAJOR "0")
+          set(KTX_VERSION_MINOR "0")
+          set(KTX_VERSION_PATCH "0")
+          set(KTX_VERSION_TWEAK "-0")
+          EOF
+
       - name: Cargo build
         uses: actions-rs/cargo@v1
         with:
