@@ -63,6 +63,16 @@ jobs:
           set(KTX_VERSION_MINOR "0")
           set(KTX_VERSION_PATCH "0")
           set(KTX_VERSION_TWEAK "-0")
+
+          function(create_version_header dest_path target)
+            file(WRITE "${PROJECT_SOURCE_DIR}/${dest_path}/version.h" "#define LIBKTX_VERSION v0.0.0-0-c0ffee")
+            file(APPEND "${PROJECT_SOURCE_DIR}/${dest_path}/version.h" "#define LIBKTX_VERSION_DEFAULT v0.0.__default__")
+          endfunction()
+
+          function(create_version_file)
+            file(WRITE "${PROJECT_BINARY_DIR}/ktx.version" "${KTX_VERSION}")
+          endfunction()
+
           EOF
 
       - name: Cargo build
