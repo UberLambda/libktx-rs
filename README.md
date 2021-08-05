@@ -32,6 +32,9 @@ To enable image loading tests, **clone the libktx-rs-sys/KTX-Software submodule 
 To have [rust-bindgen](https://github.com/rust-lang/rust-bindgen) generate bindings in the build script (instead of using [the pre-generated ones](libktx-rs-sys/src/ffi.rs)),
 enable the `libktx-rs-sys/run-bindgen` feature.
 
+### Docs-only
+To skip building or linking KTX-Software altogether, enable the `libktx-rs-sys/docs-only` feature.
+
 ## License
 This Rust wrapper, and the KTX-Software library itself, are both licensed under the [Apache-2.0 license](LICENSE).
 

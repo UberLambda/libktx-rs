@@ -58,6 +58,9 @@ default = ["static", "write"]
 # Compile libktx as a static library? 
 "static" = []
 
+# Docs-only build? (does not actually build or link KTX-Software)
+"docs-only" = []
+
 # Run bindgen as part of the build process?
 "run-bindgen" = ["bindgen"]
 
@@ -68,6 +71,9 @@ default = ["static", "write"]
 # >>> Enabling this feature makes a non-open-source file be compiled along with the library! <<<
 # This is disabled by default to be able to ship this library as Apache-2.0.
 "nonfree-etc-unpack" = []
+
+[package.metadata.docs.rs]
+features = ["write", "docs-only"]
 
 [dependencies]
 log = "0.4.14"

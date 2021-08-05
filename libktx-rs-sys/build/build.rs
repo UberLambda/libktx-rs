@@ -116,7 +116,14 @@ include("../no_etc_unpack.cmake")
     }
 }
 
+#[cfg_attr(feature = "docs-only", allow(unreachable_code))]
 fn main() {
+    #[cfg(feature = "docs-only")]
+    {
+        println!("-- docs-only build; quitting");
+        return;
+    }
+
     let (static_library, static_library_flag, lib_kind) = if cfg!(feature = "static") {
         (true, "ON", "static")
     } else {
