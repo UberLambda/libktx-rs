@@ -5,12 +5,13 @@
 
 use crate::{
     enums::{
-        ktx_result, PackAstcBlockDimension, PackAstcEncoderFunction, PackAstcEncoderMode,
-        PackAstcQualityLevel, SuperCompressionScheme, TranscodeFlags, TranscodeFormat,
+        ktx_result, Orientations, PackAstcBlockDimension, PackAstcEncoderFunction,
+        PackAstcEncoderMode, PackAstcQualityLevel, SuperCompressionScheme, TranscodeFlags,
+        TranscodeFormat,
     },
     sys, KtxError,
 };
-use std::marker::PhantomData;
+use std::{convert::TryInto, marker::PhantomData};
 
 /// A source of [`Texture`]s.
 pub trait TextureSource<'a> {
@@ -167,6 +168,24 @@ impl<'a> Texture<'a> {
     pub fn num_faces(&self) -> usize {
         // SAFETY: Safe if `self.handle` is sane.
         unsafe { (*self.handle).numLayers as usize }
+    }
+
+    /// Returns the logical orientation of this texture in all possible directions (X, Y and Z).
+    pub fn orientation(&self) -> Orientations {
+        // SAFETY: Safe if `self.handle` is sane.
+        // PANICS: Theoretically never. The `try_into()` on orientations returned by the C library should never fail.
+        let c_orientation = unsafe { (*self.handle).orientation };
+        Orientations {
+            x: (c_orientation.x as sys::ktxOrientationX)
+                .try_into()
+                .unwrap(),
+            y: (c_orientation.y as sys::ktxOrientationY)
+                .try_into()
+                .unwrap(),
+            z: (c_orientation.z as sys::ktxOrientationZ)
+                .try_into()
+                .unwrap(),
+        }
     }
 
     /// Attempts to return the offset (in bytes) into [`Self::data`] for the image

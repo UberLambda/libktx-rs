@@ -160,6 +160,74 @@ bitflags! {
     }
 }
 
+/// The logical orientation of a texture in the X direction.
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[repr(u32)]
+pub enum OrientationX {
+    Left = sys::ktxOrientationX_KTX_ORIENT_X_LEFT,
+    Right = sys::ktxOrientationX_KTX_ORIENT_X_RIGHT,
+}
+
+impl TryFrom<sys::ktxOrientationX> for OrientationX {
+    type Error = &'static str;
+
+    fn try_from(value: sys::ktxOrientationX) -> Result<Self, Self::Error> {
+        Ok(match value {
+            sys::ktxOrientationX_KTX_ORIENT_X_LEFT => OrientationX::Left,
+            sys::ktxOrientationX_KTX_ORIENT_X_RIGHT => OrientationX::Right,
+            _ => return Err("Not a ktxOrientationX variant"),
+        })
+    }
+}
+
+/// The logical orientation of a texture in the Y direction.
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[repr(u32)]
+pub enum OrientationY {
+    Up = sys::ktxOrientationY_KTX_ORIENT_Y_UP,
+    Down = sys::ktxOrientationY_KTX_ORIENT_Y_DOWN,
+}
+
+impl TryFrom<sys::ktxOrientationY> for OrientationY {
+    type Error = &'static str;
+
+    fn try_from(value: sys::ktxOrientationY) -> Result<Self, Self::Error> {
+        Ok(match value {
+            sys::ktxOrientationY_KTX_ORIENT_Y_UP => OrientationY::Up,
+            sys::ktxOrientationY_KTX_ORIENT_Y_DOWN => OrientationY::Down,
+            _ => return Err("Not a ktxOrientationY variant"),
+        })
+    }
+}
+
+/// The logical orientation of a texture in the Z direction.
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[repr(u32)]
+pub enum OrientationZ {
+    In = sys::ktxOrientationZ_KTX_ORIENT_Z_IN,
+    Out = sys::ktxOrientationZ_KTX_ORIENT_Z_OUT,
+}
+
+impl TryFrom<sys::ktxOrientationZ> for OrientationZ {
+    type Error = &'static str;
+
+    fn try_from(value: sys::ktxOrientationZ) -> Result<Self, Self::Error> {
+        Ok(match value {
+            sys::ktxOrientationZ_KTX_ORIENT_Z_IN => OrientationZ::In,
+            sys::ktxOrientationZ_KTX_ORIENT_Z_OUT => OrientationZ::Out,
+            _ => return Err("Not a ktxOrientationZ variant"),
+        })
+    }
+}
+
+/// The logical orientation of a texture in all possible directions (X, Y and Z).
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub struct Orientations {
+    pub x: OrientationX,
+    pub y: OrientationY,
+    pub z: OrientationZ,
+}
+
 bitflags! {
     pub struct PackUastcFlags: u32 {
         const LEVEL_FASTEST  = sys::ktx_pack_uastc_flag_bits_e_KTX_PACK_UASTC_LEVEL_FASTEST;
