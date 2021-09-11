@@ -107,6 +107,68 @@ impl<'a> Texture<'a> {
         unsafe { sys::ktxTexture_GetElementSize(self.handle) as usize }
     }
 
+    /// Returns whether this texture is an array texture or not.
+    pub fn is_array(&self) -> bool {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).isArray }
+    }
+
+    /// Returns whether this texture is a cubemap or not.
+    pub fn is_cubemap(&self) -> bool {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).isCubemap }
+    }
+
+    /// Returns whether this texture is compressed or not.
+    pub fn is_compressed(&self) -> bool {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).isCompressed }
+    }
+
+    /// Returns the width (in texels) of this texture's base level.
+    pub fn base_width(&self) -> usize {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).baseWidth as usize }
+    }
+
+    /// Returns the height (in texels) of this texture's base level.
+    pub fn base_height(&self) -> usize {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).baseHeight as usize }
+    }
+
+    /// Returns the depth (in texels) of this texture's base level.
+    pub fn base_depth(&self) -> usize {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).baseDepth as usize }
+    }
+
+    /// Returns the number of dimensions in this texture (1, 2 or 3).
+    pub fn num_dimensions(&self) -> usize {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).numDimensions as usize }
+    }
+
+    /// Returns the number of mipmap levels in this texture.
+    ///
+    /// This must be 1 if pre-upload mipmap generation was enabled by the library.
+    pub fn num_levels(&self) -> usize {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).numLevels as usize }
+    }
+
+    /// Returns the number of array layers in this texture.
+    pub fn num_layers(&self) -> usize {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).numLayers as usize }
+    }
+
+    /// Returns the number of faces in this texture. It is 1 for standard images, and 6 for cubemaps.
+    pub fn num_faces(&self) -> usize {
+        // SAFETY: Safe if `self.handle` is sane.
+        unsafe { (*self.handle).numLayers as usize }
+    }
+
     /// Attempts to return the offset (in bytes) into [`Self::data`] for the image
     /// at the given mip level, array layer, and slice.  
     /// `slice` is either a cubemap's face or a 3D texture's depth slice.
