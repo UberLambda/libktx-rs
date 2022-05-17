@@ -1,3 +1,7 @@
+**Archived**: put in the backlog for now...
+
+* * * * *
+
 # libktx-rs
 
 [![crates.io](https://img.shields.io/crates/v/libktx-rs.svg)](https://crates.io/crates/libktx-rs)
